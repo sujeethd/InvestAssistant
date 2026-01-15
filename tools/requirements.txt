@@ -1,0 +1,7 @@
+tabula-py
+psycopg2-binary
+pandas
+jpype1
+pdfplumber
+pytesseract
+python-dotenv
