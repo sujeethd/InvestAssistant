@@ -47,7 +47,7 @@ def _dedupe_columns(columns):
     return deduped
 
 
-def _build_header(words, gap_threshold=50, start_padding=5):
+def _build_header(words, gap_threshold=100, start_padding=5):
     sorted_words = sorted(words)
     groups = []
     current = []
@@ -132,7 +132,7 @@ def extract_ocr_rows(pdf_path):
 
     with pdfplumber.open(pdf_path) as pdf:
         for page_index, page in enumerate(pdf.pages, 1):
-            img = page.to_image(resolution=600).original
+            img = page.to_image(resolution=1200).original
             data = pytesseract.image_to_data(
                 img,
                 output_type=pytesseract.Output.DICT,
