@@ -194,15 +194,52 @@ def extract_ocr_rows(pdf_path):
     return rows, header_cols
 
 
+def _read_existing_csv(path):
+    if not os.path.exists(path):
+        return [], []
+    with open(path, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        cols = list(reader.fieldnames or [])
+        if not cols and rows:
+            cols = sorted({k for row in rows for k in row.keys() if k})
+        return rows, cols
+
+
 def write_csv(rows, columns, output_path):
     if not rows:
         print("!!! No rows parsed. CSV not written.")
         return
-    columns = columns or sorted({k for row in rows for k in row.keys()})
+
+    existing_rows, existing_cols = _read_existing_csv(output_path)
+    existing_keys = {k for row in existing_rows for k in row.keys() if k}
+    new_cols = columns or sorted({k for row in rows for k in row.keys() if k})
+    merged_cols = existing_cols + [c for c in sorted(existing_keys) if c not in existing_cols]
+    merged_cols += [c for c in new_cols if c not in merged_cols]
+    if "fund_name" in merged_cols:
+        merged_cols = ["fund_name"] + [c for c in merged_cols if c != "fund_name"]
+
+    existing_by_name = {}
+    for row in existing_rows:
+        key = normalize_fund_name(row.get("fund_name"))
+        if key:
+            existing_by_name[key.lower()] = row
+
+    for row in rows:
+        key = normalize_fund_name(row.get("fund_name"))
+        if not key:
+            continue
+        stored = existing_by_name.get(key.lower())
+        if stored:
+            stored.update(row)
+        else:
+            existing_by_name[key.lower()] = row
+
+    merged_rows = list(existing_by_name.values())
     with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=columns)
+        writer = csv.DictWriter(f, fieldnames=merged_cols)
         writer.writeheader()
-        for row in rows:
+        for row in merged_rows:
             writer.writerow(row)
     print(f"... Wrote CSV: {output_path}")
 
@@ -217,8 +254,7 @@ def main():
     rows, header_cols = extract_ocr_rows(args.pdf_path)
     output_path = args.output
     if not output_path:
-        base = os.path.splitext(os.path.basename(args.pdf_path))[0]
-        output_path = os.path.join(os.path.dirname(os.path.abspath(args.pdf_path)), f"{base}.csv")
+        output_path = os.path.join(os.path.dirname(os.path.abspath(args.pdf_path)), "investmentdata.csv")
 
     write_csv(rows, header_cols, output_path)
     print(f"... Rows parsed: {len(rows)}")
