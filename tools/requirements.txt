@@ -1,7 +1,5 @@
-tabula-py
-psycopg2-binary
-pandas
-jpype1
+easyocr
+numpy<2
+opencv-python
 pdfplumber
-pytesseract
-python-dotenv
+psycopg2-binary
