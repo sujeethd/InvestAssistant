@@ -1,0 +1,226 @@
+openapi: 3.1.0
+info:
+  title: Investment Portfolio API
+  version: 0.1.0
+servers:
+  - url: https://YOUR_DOMAIN_HERE
+paths:
+  /funds/search:
+    post:
+      operationId: searchFunds
+      summary: Search funds with filters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundSearchRequest"
+      responses:
+        "200":
+          description: Matching funds
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FundListResponse"
+  /funds/summary:
+    post:
+      operationId: summarizeFunds
+      summary: Summary statistics for selected columns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FundSummaryRequest"
+      responses:
+        "200":
+          description: Summary stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FundSummaryResponse"
+  /portfolio/lowest-expense:
+    post:
+      operationId: lowestExpensePortfolio
+      summary: Build a portfolio minimizing expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LowestExpenseRequest"
+      responses:
+        "200":
+          description: Portfolio results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortfolioResponse"
+  /portfolio/best-return:
+    post:
+      operationId: bestReturnPortfolio
+      summary: Build a portfolio maximizing return
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BestReturnRequest"
+      responses:
+        "200":
+          description: Portfolio results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortfolioResponse"
+  /portfolio/optimize:
+    post:
+      operationId: optimizePortfolio
+      summary: Optimize with weighted objective and constraints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OptimizeRequest"
+      responses:
+        "200":
+          description: Portfolio results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PortfolioResponse"
+components:
+  schemas:
+    FundSearchRequest:
+      type: object
+      properties:
+        table:
+          type: string
+          default: fund_data
+        columns:
+          type: array
+          items: { type: string }
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+        limit:
+          type: integer
+          default: 50
+        order_by:
+          type: string
+      required: [filters]
+    FundSummaryRequest:
+      type: object
+      properties:
+        table:
+          type: string
+          default: fund_data
+        columns:
+          type: array
+          items: { type: string }
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+      required: [columns]
+    LowestExpenseRequest:
+      type: object
+      properties:
+        table:
+          type: string
+          default: fund_data
+        expense_column:
+          type: string
+        count:
+          type: integer
+          default: 10
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+      required: [expense_column]
+    BestReturnRequest:
+      type: object
+      properties:
+        table:
+          type: string
+          default: fund_data
+        return_column:
+          type: string
+        count:
+          type: integer
+          default: 10
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+      required: [return_column]
+    OptimizeRequest:
+      type: object
+      properties:
+        table:
+          type: string
+          default: fund_data
+        count:
+          type: integer
+          default: 10
+        objective:
+          $ref: "#/components/schemas/Objective"
+        weights:
+          type: object
+          additionalProperties: { type: number }
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+      required: [objective]
+    Objective:
+      type: object
+      properties:
+        maximize:
+          type: array
+          items: { type: string }
+        minimize:
+          type: array
+          items: { type: string }
+    Filter:
+      type: object
+      properties:
+        column: { type: string }
+        op:
+          type: string
+          enum: [=, !=, >, >=, <, <=, in, like]
+        value:
+          oneOf:
+            - type: string
+            - type: number
+            - type: array
+              items: { type: string }
+      required: [column, op, value]
+    PortfolioResponse:
+      type: object
+      properties:
+        rows:
+          type: array
+          items: { type: object }
+        count:
+          type: integer
+    FundListResponse:
+      type: object
+      properties:
+        rows:
+          type: array
+          items: { type: object }
+    FundSummaryResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              min: { type: number }
+              max: { type: number }
+              avg: { type: number }
