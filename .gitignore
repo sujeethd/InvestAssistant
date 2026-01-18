@@ -5,5 +5,5 @@ agent/.env
 agent/.venv
 agent/__pycache__/
 aichat/.env
-agent/.venv
+aichat/.venv
 
