@@ -2,8 +2,9 @@ import os
 import argparse
 import csv
 import pdfplumber
-import pytesseract
 import re
+import numpy as np
+import easyocr
 from bisect import bisect_right
 
 
@@ -47,7 +48,7 @@ def _dedupe_columns(columns):
     return deduped
 
 
-def _build_header(words, gap_threshold=100, start_padding=5):
+def _build_header(words, gap_threshold=30, start_padding=5):
     sorted_words = sorted(words)
     groups = []
     current = []
@@ -77,42 +78,74 @@ def _line_to_row(words, columns, starts):
     if not columns:
         return None
     sorted_words = sorted(words)
+    buckets = {col: [] for col in columns}
+    for left, text in sorted_words:
+        idx = bisect_right(starts, left) - 1
+        if idx < 0:
+            idx = 0
+        buckets[columns[idx]].append(text)
+
     row = {}
-    if len(columns) == 1:
-        value = " ".join(t for _, t in sorted_words).strip()
+    for col, tokens in buckets.items():
+        value = " ".join(tokens).strip()
         if value:
-            row[columns[0]] = value
-    else:
-        split1 = starts[1]
-        split2 = starts[2] if len(starts) > 2 else None
-        name_tokens = [t for left, t in sorted_words if left < split1]
-        col2_tokens = [t for left, t in sorted_words if split1 <= left and (split2 is None or left < split2)]
-        tail_tokens = [t for left, t in sorted_words if split2 is not None and left >= split2]
-
-        name_value = " ".join(name_tokens).strip()
-        if name_value:
-            row[columns[0]] = name_value
-        col2_value = " ".join(col2_tokens).strip()
-        if col2_value:
-            row[columns[1]] = col2_value
-
-        tail_cols = columns[2:]
-        if tail_cols and tail_tokens:
-            tokens = " ".join(tail_tokens).split()
-            if len(tokens) >= len(tail_cols):
-                for i, col in enumerate(tail_cols[:-1]):
-                    row[col] = tokens[i]
-                row[tail_cols[-1]] = " ".join(tokens[len(tail_cols) - 1:]).strip()
-            else:
-                for i, col in enumerate(tail_cols):
-                    if i < len(tokens):
-                        row[col] = tokens[i]
+            row[col] = value
 
     fund_name = normalize_fund_name(row.get("fund_name"))
     if not fund_name:
-        return None
+        row.pop("fund_name", None)
+        return row if row else None
     row["fund_name"] = fund_name
     return row
+
+
+def _easyocr_lines(reader, img, y_threshold=30):
+    img_rgb = img.convert("RGB")
+    img_arr = np.array(img_rgb)
+    result = reader.readtext(img_arr)
+    words = []
+    for item in result:
+        if not item or len(item) < 2:
+            continue
+        box, text, _score = item
+        text = str(text).strip()
+        if not text:
+            continue
+        xs = [p[0] for p in box]
+        ys = [p[1] for p in box]
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        center_y = (min_y + max_y) / 2
+        tokens = text.split()
+        if not tokens:
+            continue
+        if len(tokens) == 1:
+            words.append((center_y, min_x, tokens[0]))
+            continue
+        total_len = sum(len(t) for t in tokens) + (len(tokens) - 1)
+        pos = 0
+        for i, tok in enumerate(tokens):
+            if i > 0:
+                pos += 1
+            left = min_x + (max_x - min_x) * (pos / max(total_len, 1))
+            words.append((center_y, left, tok))
+            pos += len(tok)
+
+    words.sort(key=lambda x: (x[0], x[1]))
+    lines = []
+    current = []
+    current_y = None
+    for y, left, tok in words:
+        if current_y is None or abs(y - current_y) <= y_threshold:
+            current.append((left, tok))
+            current_y = y if current_y is None else (current_y + y) / 2
+        else:
+            lines.append(current)
+            current = [(left, tok)]
+            current_y = y
+    if current:
+        lines.append(current)
+    return lines
 
 
 def extract_ocr_rows(pdf_path):
@@ -129,39 +162,27 @@ def extract_ocr_rows(pdf_path):
     sample_lines = []
     rows = []
     stop_processing = False
+    debug_rows_left = 5
+    reader = easyocr.Reader(["en"], gpu=False)
 
     with pdfplumber.open(pdf_path) as pdf:
+        pending_row = None
         for page_index, page in enumerate(pdf.pages, 1):
-            img = page.to_image(resolution=1200).original
-            data = pytesseract.image_to_data(
-                img,
-                output_type=pytesseract.Output.DICT,
-                config='--psm 4',
-            )
-
-            lines = {}
-            for idx in range(len(data['text'])):
-                text = data['text'][idx].strip()
-                if not text:
-                    continue
-                left = data['left'][idx]
-                line_id = (
-                    data['block_num'][idx],
-                    data['par_num'][idx],
-                    data['line_num'][idx],
-                )
-                lines.setdefault(line_id, []).append((left, text))
-
-            for line_id in sorted(lines.keys()):
-                words = lines[line_id]
+            img = page.to_image(resolution=400).original
+            lines = _easyocr_lines(reader, img)
+            line_idx = 0
+            while line_idx < len(lines):
+                words = lines[line_idx]
                 line = ' '.join(w for _, w in sorted(words)).strip()
                 if not line:
+                    line_idx += 1
                     continue
                 lower = line.lower()
                 if lower.startswith("total results"):
                     stop_processing = True
                     break
                 if any(phrase in lower for phrase in skip_phrases):
+                    line_idx += 1
                     continue
 
                 if not header_cols and len(sample_lines) < 10:
@@ -170,16 +191,60 @@ def extract_ocr_rows(pdf_path):
                 header_line = re.sub(r"\s+", " ", lower).strip()
                 if header_line.startswith("name"):
                     header_cols, header_starts = _build_header(words)
+                    best_cols, best_starts, best_advance = header_cols, header_starts, 0
+                    if (line_idx + 1) < len(lines):
+                        combined = words + lines[line_idx + 1]
+                        combined_cols, combined_starts = _build_header(combined)
+                        if combined_cols and len(combined_cols) > len(best_cols or []):
+                            best_cols, best_starts, best_advance = combined_cols, combined_starts, 1
+                    if (line_idx + 2) < len(lines):
+                        combined = words + lines[line_idx + 1] + lines[line_idx + 2]
+                        combined_cols, combined_starts = _build_header(combined)
+                        if combined_cols and len(combined_cols) > len(best_cols or []):
+                            best_cols, best_starts, best_advance = combined_cols, combined_starts, 2
+
+                    header_cols, header_starts = best_cols, best_starts
+                    if best_advance:
+                        line_idx += best_advance
                     if header_cols:
                         print(f"... Detected header on page {page_index}: {header_cols}")
+                    line_idx += 1
                     continue
 
                 if not header_cols:
+                    line_idx += 1
                     continue
 
+                if debug_rows_left > 0:
+                    print(f"Page {page_index} Data Line: {line} | words: {words} | header_starts: {header_starts}")
                 row = _line_to_row(words, header_cols, header_starts)
-                if row:
-                    rows.append(row)
+                if row and "fund_name" not in row:
+                    if pending_row:
+                        pending_row.update(row)
+                        rows.append(pending_row)
+                        pending_row = None
+                    line_idx += 1
+                    continue
+
+                if row and len(row) == 1 and "fund_name" in row:
+                    tokens = line.replace('%', '').split()
+                    has_numbers = any(any(ch.isdigit() for ch in t) for t in tokens)
+                    min_left = min((left for left, _ in words), default=0)
+                    in_name_col = header_starts and min_left < header_starts[1]
+                    if pending_row and not has_numbers and in_name_col:
+                        pending_row["fund_name"] = f"{pending_row['fund_name']} {row['fund_name']}".strip()
+                    else:
+                        pending_row = row
+                else:
+                    if row:
+                        rows.append(row)
+                        pending_row = None
+
+                if debug_rows_left > 0:
+                    print(f"... Parsed row: {row}")
+                    debug_rows_left -= 1
+
+                line_idx += 1
 
             if stop_processing:
                 break
