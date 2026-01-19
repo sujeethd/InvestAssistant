@@ -23,6 +23,28 @@ def load_dotenv(path: str) -> None:
                 os.environ[key] = value
 
 
+def load_text(path: str) -> str:
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read().strip()
+
+
+def get_system_prompt() -> str:
+    default_prompt = (
+        "You are a helpful assistant that can call tools to query a local "
+        "funds database API. Use tools when needed."
+    )
+    prompt = os.environ.get("SYSTEM_PROMPT")
+    if prompt:
+        return prompt
+    prompt_file = os.environ.get("SYSTEM_PROMPT_FILE")
+    if prompt_file and os.path.exists(prompt_file):
+        return load_text(prompt_file)
+    local_prompt_file = os.path.join(os.path.dirname(__file__), "system_prompt.txt")
+    if os.path.exists(local_prompt_file):
+        return load_text(local_prompt_file)
+    return default_prompt
+
+
 def call_local_api(base_url: str, name: str, args: Dict[str, Any]) -> Dict[str, Any]:
     endpoints = {
         "funds_search": "/funds/search",
@@ -72,7 +94,7 @@ def build_tools() -> List[Dict[str, Any]]:
                         "limit": {"type": "integer"},
                         "order_by": {"type": "string"},
                     },
-                    "required": ["table"],
+                    "required": [],
                 },
             },
         },
@@ -99,7 +121,7 @@ def build_tools() -> List[Dict[str, Any]]:
                             },
                         },
                     },
-                    "required": ["table", "columns"],
+                    "required": ["columns"],
                 },
             },
         },
@@ -127,7 +149,7 @@ def build_tools() -> List[Dict[str, Any]]:
                             },
                         },
                     },
-                    "required": ["table", "expense_column"],
+                    "required": ["expense_column"],
                 },
             },
         },
@@ -155,7 +177,7 @@ def build_tools() -> List[Dict[str, Any]]:
                             },
                         },
                     },
-                    "required": ["table", "return_column"],
+                    "required": ["return_column"],
                 },
             },
         },
@@ -191,7 +213,7 @@ def build_tools() -> List[Dict[str, Any]]:
                             },
                         },
                     },
-                    "required": ["table", "objective"],
+                    "required": ["objective"],
                 },
             },
         },
@@ -201,13 +223,11 @@ def build_tools() -> List[Dict[str, Any]]:
 def run_openai_loop(
     client: OpenAI, base_url: str, model: str, tools: List[Dict[str, Any]]
 ) -> None:
+    system_prompt = get_system_prompt()
     messages = [
         {
             "role": "system",
-            "content": (
-                "You are a helpful assistant that can call tools to query a local "
-                "funds database API. Use tools when needed."
-            ),
+            "content": system_prompt,
         }
     ]
     print("Type a question, or Ctrl-D to exit.")
@@ -266,10 +286,7 @@ def run_anthropic_loop(
         return
 
     client = Anthropic()
-    system = (
-        "You are a helpful assistant that can call tools to query a local "
-        "funds database API. Use tools when needed."
-    )
+    system = get_system_prompt()
     messages: List[Dict[str, Any]] = []
     print("Type a question, or Ctrl-D to exit.")
     while True:

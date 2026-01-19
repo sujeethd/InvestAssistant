@@ -38,3 +38,5 @@ python aichat/chat_local.py
 - `ANTHROPIC_MODEL` (default `claude-3-5-sonnet-20240620`, required only for Claude)
 - `OPENAI_API_KEY` (required only for OpenAI)
 - `ANTHROPIC_API_KEY` (required only for Claude)
+- `SYSTEM_PROMPT` (optional override for the system prompt)
+- `SYSTEM_PROMPT_FILE` (optional path to a prompt file; falls back to `aichat/system_prompt.txt`)
