@@ -362,10 +362,12 @@ def main() -> int:
     load_dotenv(env_path)
     base_url = os.environ.get("LOCAL_API_URL", "http://localhost:8000")
     provider = os.environ.get("PROVIDER", "openai").lower().strip()
-    model = os.environ.get(
-        "OPENAI_MODEL" if provider == "openai" else "ANTHROPIC_MODEL",
-        "gpt-4o-mini" if provider == "openai" else "claude-3-5-sonnet-20240620",
-    )
+    if provider == "openai":
+        model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    elif provider == "ollama":
+        model = os.environ.get("OLLAMA_MODEL", "llama3.1")
+    else:
+        model = os.environ.get("ANTHROPIC_MODEL", "claude-3-5-sonnet-20240620")
     if provider == "openai" and not os.environ.get("OPENAI_API_KEY"):
         print("Missing OPENAI_API_KEY for provider=openai")
         return 1
@@ -379,6 +381,13 @@ def main() -> int:
     print("Model:", model)
     if provider == "openai":
         client = OpenAI()
+        run_openai_loop(client, base_url, model, tools)
+    elif provider == "ollama":
+        ollama_base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+        client = OpenAI(
+            base_url=ollama_base_url,
+            api_key=os.environ.get("OLLAMA_API_KEY", "ollama"),
+        )
         run_openai_loop(client, base_url, model, tools)
     elif provider == "anthropic":
         run_anthropic_loop(base_url, model, tools)

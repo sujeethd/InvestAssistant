@@ -33,10 +33,13 @@ python aichat/chat_local.py
 ## Config
 
 - `LOCAL_API_URL` (default `http://localhost:8000`)
-- `PROVIDER` (`openai` or `anthropic`, default `openai`)
+- `PROVIDER` (`openai`, `anthropic`, or `ollama`, default `openai`)
 - `OPENAI_MODEL` (default `gpt-4o-mini`, required only for OpenAI)
 - `ANTHROPIC_MODEL` (default `claude-3-5-sonnet-20240620`, required only for Claude)
 - `OPENAI_API_KEY` (required only for OpenAI)
+- `OLLAMA_MODEL` (default `llama3.1`, required only for Ollama)
+- `OLLAMA_BASE_URL` (default `http://localhost:11434/v1`)
+- `OLLAMA_API_KEY` (optional for Ollama; any non-empty value if set)
 - `ANTHROPIC_API_KEY` (required only for Claude)
 - `SYSTEM_PROMPT` (optional override for the system prompt)
 - `SYSTEM_PROMPT_FILE` (optional path to a prompt file; falls back to `aichat/system_prompt.txt`)
