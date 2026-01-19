@@ -2,6 +2,7 @@
 import os
 import argparse
 import csv
+import re
 import psycopg2
 from psycopg2 import sql
 
@@ -42,7 +43,61 @@ def _normalize_column(col):
     return text
 
 
-def ensure_table(conn, table_name, columns):
+def _clean_numeric(value):
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in {"na", "n/a", "null"}:
+        return None
+    cleaned = re.sub(r"[^0-9\.-]", "", text)
+    cleaned = re.sub(r"\.+", ".", cleaned)
+    cleaned = re.sub(r"(?<=.)-", "", cleaned)
+    if not cleaned:
+        return None
+    if not re.fullmatch(r"-?\d+(\.\d+)?", cleaned):
+        return None
+    try:
+        return float(cleaned)
+    except ValueError:
+        return None
+
+
+def infer_numeric_columns(rows, columns):
+    numeric_cols = set()
+    for col in columns:
+        if col == "fund_name":
+            continue
+        saw_value = False
+        all_numeric = True
+        for row in rows:
+            raw = row.get(col)
+            if raw is None:
+                continue
+            if not str(raw).strip():
+                continue
+            saw_value = True
+            if _clean_numeric(raw) is None:
+                all_numeric = False
+                break
+        if saw_value and all_numeric:
+            numeric_cols.add(col)
+    return numeric_cols
+
+
+def get_existing_columns(conn, table_name):
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = %s;
+            """,
+            (table_name,),
+        )
+        return {row[0]: row[1] for row in cur.fetchall()}
+
+
+def ensure_table(conn, table_name, columns, numeric_columns):
     with conn.cursor() as cur:
         cur.execute("CREATE EXTENSION IF NOT EXISTS citext;")
         cur.execute(
@@ -50,6 +105,7 @@ def ensure_table(conn, table_name, columns):
                 sql.Identifier(table_name)
             )
         )
+        existing = get_existing_columns(conn, table_name)
         if "fund_name" in columns:
             cur.execute(
                 sql.SQL("ALTER TABLE {} ADD COLUMN IF NOT EXISTS fund_name CITEXT UNIQUE;").format(
@@ -59,16 +115,44 @@ def ensure_table(conn, table_name, columns):
         for col in columns:
             if col == "fund_name":
                 continue
+            col_type = sql.SQL("DOUBLE PRECISION") if col in numeric_columns else sql.SQL("TEXT")
             cur.execute(
-                sql.SQL("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} TEXT;").format(
+                sql.SQL("ALTER TABLE {} ADD COLUMN IF NOT EXISTS {} {};").format(
                     sql.Identifier(table_name),
-                    sql.Identifier(col)
+                    sql.Identifier(col),
+                    col_type,
                 )
             )
+        for col in numeric_columns:
+            if col == "fund_name":
+                continue
+            existing_type = existing.get(col)
+            if existing_type and existing_type not in {"double precision", "real", "numeric"}:
+                cur.execute(
+                    sql.SQL(
+                        """
+                        ALTER TABLE {} ALTER COLUMN {} TYPE double precision
+                        USING NULLIF(
+                            regexp_replace(
+                                regexp_replace(
+                                    regexp_replace({}, '[^0-9\\.-]', '', 'g'),
+                                    '\\.+', '.', 'g'
+                                ),
+                                '(?<=.)-', '', 'g'
+                            ),
+                            ''
+                        )::double precision;
+                        """
+                    ).format(
+                        sql.Identifier(table_name),
+                        sql.Identifier(col),
+                        sql.Identifier(col),
+                    )
+                )
         conn.commit()
 
 
-def upsert_rows(conn, table_name, rows, columns):
+def upsert_rows(conn, table_name, rows, columns, numeric_columns):
     if not rows:
         print("!!! No rows to insert.")
         return
@@ -80,7 +164,13 @@ def upsert_rows(conn, table_name, rows, columns):
             if not fund_name:
                 continue
             insert_cols = [c for c in columns if c in row]
-            values = [row.get(c) for c in insert_cols]
+            values = []
+            for c in insert_cols:
+                raw_value = row.get(c)
+                if c in numeric_columns:
+                    values.append(_clean_numeric(raw_value))
+                else:
+                    values.append(raw_value)
             update_cols = [c for c in insert_cols if c != "fund_name"]
             if not update_cols:
                 cur.execute(
@@ -140,13 +230,14 @@ def main():
     if not columns:
         print("!!! No columns detected in CSV.")
         return
+    numeric_columns = infer_numeric_columns(rows, columns)
 
     conn = get_db_connection()
     if not conn:
         return
 
-    ensure_table(conn, args.table, columns)
-    upsert_rows(conn, args.table, rows, columns)
+    ensure_table(conn, args.table, columns, numeric_columns)
+    upsert_rows(conn, args.table, rows, columns, numeric_columns)
     conn.close()
     print("--- Execution Finished ---")
 
