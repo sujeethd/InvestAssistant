@@ -56,7 +56,7 @@ def get_table_columns(conn, table: str) -> List[str]:
 
 def numeric_expr(column: str) -> sql.SQL:
     return sql.SQL(
-        "NULLIF(regexp_replace({}, '[^0-9\\.-]', '', 'g'), '')::double precision"
+        "NULLIF(regexp_replace(({}::text), '[^0-9\\.-]', '', 'g'), '')::double precision"
     ).format(sql.Identifier(column))
 
 
@@ -159,7 +159,10 @@ def startup():
 def search_funds(req: FundSearchRequest):
     with get_db_connection() as conn:
         columns = get_table_columns(conn, req.table)
-        cols = req.columns or columns
+        if req.columns == ["*"]:
+            cols = columns
+        else:
+            cols = req.columns or columns
         print("[funds/search] table:", req.table)
         print("[funds/search] available columns:", columns)
         print("[funds/search] selected columns:", cols)
