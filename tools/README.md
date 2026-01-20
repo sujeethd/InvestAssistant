@@ -31,5 +31,9 @@ Run the `pdf_extractor.py` script with the path to the PDF file as an argument:
 
 ```bash
 python pdf_extractor_csv.py /path/to/your/file.pdf
+```
+Manually verify extracted csv data beforeloading into db
+
+```bash
 python csv_to_postgres.py /path/to/yoour/csv
 ```
