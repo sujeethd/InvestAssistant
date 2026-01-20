@@ -58,7 +58,7 @@ Hybrid config uses the same `RAG_*` variables as above, plus standard tool setti
 ## Config
 
 - `LOCAL_API_URL` (default `http://localhost:8000`)
-- `PROVIDER` (`openai`, `anthropic`, or `ollama`, default `openai`)
+- `PROVIDER` (`openai`, `anthropic`, or `ollama`, default `anthropic`)
 - `OPENAI_MODEL` (default `gpt-4o-mini`, required only for OpenAI)
 - `ANTHROPIC_MODEL` (default `claude-3-5-sonnet-20240620`, required only for Claude)
 - `OPENAI_API_KEY` (required only for OpenAI)

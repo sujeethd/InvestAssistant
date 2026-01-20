@@ -452,7 +452,7 @@ def main() -> int:
     env_path = os.path.join(os.path.dirname(__file__), ".env")
     load_dotenv(env_path)
     base_url = os.environ.get("RAG_API_URL", os.environ.get("LOCAL_API_URL", "http://localhost:8000"))
-    provider = os.environ.get("PROVIDER", "openai").lower().strip()
+    provider = os.environ.get("PROVIDER", "anthropic").lower().strip()
     if provider == "openai":
         model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
     elif provider == "ollama":
