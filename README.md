@@ -71,6 +71,14 @@ RAG_COLUMNS=fund_name,1_yr_anlsd_percent,5_yr_anlsd_percent,expense_ratio
 RAG_TEXT_COLUMNS=fund_name,morningstart_risk
 ```
 
+## Hybrid mode
+
+Hybrid mode combines RAG context with tool calling for precise ranking/filtering:
+
+```bash
+python aichat/chat_hybrid.py
+```
+
 ## Data ingestion
 
 Load a CSV into Postgres (creates/updates `fund_data` and infers numeric columns):

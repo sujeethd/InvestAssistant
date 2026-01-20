@@ -45,6 +45,16 @@ RAG config (optional):
 - `RAG_COLUMNS` (comma-separated list of columns to include in context)
 - `RAG_TEXT_COLUMNS` (comma-separated list of columns used for retrieval)
 
+## Hybrid mode
+
+Use the hybrid CLI to retrieve context via RAG and call tools for precise ranking/filtering.
+
+```bash
+python aichat/chat_hybrid.py
+```
+
+Hybrid config uses the same `RAG_*` variables as above, plus standard tool settings.
+
 ## Config
 
 - `LOCAL_API_URL` (default `http://localhost:8000`)
