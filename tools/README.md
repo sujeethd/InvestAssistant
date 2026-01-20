@@ -30,5 +30,6 @@ This tool extracts tabular data from PDF files containing Morningstar fund perfo
 Run the `pdf_extractor.py` script with the path to the PDF file as an argument:
 
 ```bash
-python pdf_extractor.py /path/to/your/file.pdf
+python pdf_extractor_csv.py /path/to/your/file.pdf
+python csv_to_postgres.py /path/to/yoour/csv
 ```
