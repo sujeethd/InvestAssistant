@@ -90,6 +90,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PortfolioResponse"
+  /rag/search:
+    post:
+      operationId: ragSearch
+      summary: Retrieve relevant rows for RAG
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RagSearchRequest"
+      responses:
+        "200":
+          description: RAG results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RagSearchResponse"
 components:
   schemas:
     FundSearchRequest:
@@ -176,6 +193,24 @@ components:
           items:
             $ref: "#/components/schemas/Filter"
       required: [objective]
+    RagSearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        table:
+          type: string
+          default: fund_data
+        columns:
+          type: array
+          items: { type: string }
+        text_columns:
+          type: array
+          items: { type: string }
+        limit:
+          type: integer
+          default: 50
+      required: [query]
     Objective:
       type: object
       properties:
@@ -218,6 +253,14 @@ components:
       properties:
         summary:
           type: object
+    RagSearchResponse:
+      type: object
+      properties:
+        rows:
+          type: array
+          items: { type: object }
+        count:
+          type: integer
           additionalProperties:
             type: object
             properties:

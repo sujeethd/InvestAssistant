@@ -145,6 +145,14 @@ class OptimizeRequest(BaseModel):
     filters: List[Filter] = Field(default_factory=list)
 
 
+class RagSearchRequest(BaseModel):
+    query: str
+    table: str = "fund_data"
+    columns: Optional[List[str]] = None
+    text_columns: Optional[List[str]] = None
+    limit: int = 50
+
+
 app = FastAPI(title="Investment Portfolio API", version="0.1.0")
 
 
@@ -297,4 +305,45 @@ def optimize_portfolio(req: OptimizeRequest):
             cur.execute(query, params)
             rows = cur.fetchall()
         result = [dict(zip(columns + ["score"], r)) for r in rows]
+        return {"rows": result, "count": len(result)}
+
+
+@app.post("/rag/search")
+def rag_search(req: RagSearchRequest):
+    if not req.query or not req.query.strip():
+        raise HTTPException(status_code=400, detail="query is required")
+    with get_db_connection() as conn:
+        columns = get_table_columns(conn, req.table)
+        cols = req.columns or columns
+        for c in cols:
+            if c not in columns:
+                raise HTTPException(status_code=400, detail=f"Unknown column: {c}")
+
+        default_text_cols = [c for c in ("fund_name", "morningstart_risk") if c in columns]
+        text_cols = req.text_columns or default_text_cols
+        for c in text_cols:
+            if c not in columns:
+                raise HTTPException(status_code=400, detail=f"Unknown text column: {c}")
+
+        text_exprs = [
+            sql.SQL("COALESCE({}::text, '')").format(sql.Identifier(c))
+            for c in text_cols
+        ]
+        tsv = sql.SQL("to_tsvector('english', concat_ws(' ', {}))").format(
+            sql.SQL(", ").join(text_exprs)
+        )
+        tsq = sql.SQL("plainto_tsquery('english', %s)")
+        query = sql.SQL("SELECT {}, ts_rank_cd({}, {}) AS rank FROM {} WHERE {} @@ {} ORDER BY rank DESC LIMIT %s").format(
+            sql.SQL(", ").join(map(sql.Identifier, cols)),
+            tsv,
+            tsq,
+            sql.Identifier(req.table),
+            tsv,
+            tsq,
+        )
+        params = [req.query, req.query, req.limit]
+        with conn.cursor() as cur:
+            cur.execute(query, params)
+            rows = cur.fetchall()
+        result = [dict(zip(cols + ["rank"], r)) for r in rows]
         return {"rows": result, "count": len(result)}

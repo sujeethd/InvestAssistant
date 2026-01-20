@@ -30,6 +30,21 @@ Then in another shell:
 python aichat/chat_local.py
 ```
 
+## RAG mode
+
+Use the RAG CLI to retrieve relevant rows from the database and answer using that context.
+
+```bash
+python aichat/chat_rag.py
+```
+
+RAG config (optional):
+- `RAG_API_URL` (defaults to `LOCAL_API_URL` or `http://localhost:8000`)
+- `RAG_TABLE` (default `fund_data`)
+- `RAG_LIMIT` (default `20`)
+- `RAG_COLUMNS` (comma-separated list of columns to include in context)
+- `RAG_TEXT_COLUMNS` (comma-separated list of columns used for retrieval)
+
 ## Config
 
 - `LOCAL_API_URL` (default `http://localhost:8000`)

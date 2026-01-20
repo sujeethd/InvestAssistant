@@ -53,6 +53,24 @@ uvicorn server:app --host 0.0.0.0 --port 8000
 python aichat/chat_local.py
 ```
 
+## RAG alternative
+
+You can also run a Retrieval-Augmented Generation (RAG) flow that pulls relevant
+rows from the database and answers using only that context:
+
+```bash
+python aichat/chat_rag.py
+```
+
+Set optional env vars:
+```
+RAG_API_URL=http://localhost:8000
+RAG_TABLE=fund_data
+RAG_LIMIT=20
+RAG_COLUMNS=fund_name,1_yr_anlsd_percent,5_yr_anlsd_percent,expense_ratio
+RAG_TEXT_COLUMNS=fund_name,morningstart_risk
+```
+
 ## Data ingestion
 
 Load a CSV into Postgres (creates/updates `fund_data` and infers numeric columns):
