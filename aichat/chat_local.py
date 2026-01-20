@@ -2,6 +2,7 @@
 import json
 import os
 import sys
+import time
 from typing import Any, Dict, List
 
 import requests
@@ -219,6 +220,21 @@ def build_tools() -> List[Dict[str, Any]]:
         },
     ]
 
+def log_tool_response(name: str, result: Dict[str, Any]) -> None:
+    log_path = os.environ.get("TOOL_LOG_PATH")
+    if not log_path:
+        return
+    entry = {
+        "ts": time.time(),
+        "tool": name,
+        "result": result,
+    }
+    try:
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=True) + "\n")
+    except OSError:
+        pass
+
 
 def run_openai_loop(
     client: OpenAI, base_url: str, model: str, tools: List[Dict[str, Any]]
@@ -241,7 +257,7 @@ def run_openai_loop(
             continue
         messages.append({"role": "user", "content": user_input})
 
-        for _ in range(5):
+        for _ in range(10):
             resp = client.chat.completions.create(
                 model=model,
                 messages=messages,
@@ -266,6 +282,7 @@ def run_openai_loop(
             for call in msg.tool_calls:
                 args = json.loads(call.function.arguments or "{}")
                 result = call_local_api(base_url, call.function.name, args)
+                log_tool_response(call.function.name, result)
                 messages.append(
                     {
                         "role": "tool",
@@ -299,7 +316,7 @@ def run_anthropic_loop(
             continue
         messages.append({"role": "user", "content": user_input})
 
-        for _ in range(5):
+        for _ in range(10):
             resp = client.messages.create(
                 model=model,
                 system=system,
@@ -341,6 +358,7 @@ def run_anthropic_loop(
 
             for c in tool_uses:
                 result = call_local_api(base_url, c.name, c.input or {})
+                log_tool_response(c.name, result)
                 messages.append(
                     {
                         "role": "user",
