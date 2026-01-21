@@ -1,0 +1,190 @@
+[
+  {
+    "id": "q01",
+    "question": "Show me the 5 funds with the lowest expense ratio.",
+    "expected_tool": "portfolio_lowest_expense",
+    "tool_args": {"expense_column": "expense_ratio", "count": 5},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q02",
+    "question": "List the 10 funds with the lowest expense ratio.",
+    "expected_tool": "portfolio_lowest_expense",
+    "tool_args": {"expense_column": "expense_ratio", "count": 10},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 5}
+  },
+  {
+    "id": "q03",
+    "question": "Which funds have the best YTD return percentage? Give the top 5.",
+    "expected_tool": "portfolio_best_return",
+    "tool_args": {"return_column": "ytd_return_percentage", "count": 5},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q04",
+    "question": "Top 5 funds by 1-year annualized percent return.",
+    "expected_tool": "portfolio_best_return",
+    "tool_args": {"return_column": "1_yr_anlsd_percent", "count": 5},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q05",
+    "question": "Top 5 funds by 2-year annualized percent return.",
+    "expected_tool": "portfolio_best_return",
+    "tool_args": {"return_column": "2_yr_anlsd_percent", "count": 5},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q06",
+    "question": "Top 5 funds by 5-year annualized percent return.",
+    "expected_tool": "portfolio_best_return",
+    "tool_args": {"return_column": "5_yr_anlsd_percent", "count": 5},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q07",
+    "question": "Top 5 funds by 10-year annualized percent return.",
+    "expected_tool": "portfolio_best_return",
+    "tool_args": {"return_column": "10_yr_anlsd_percent", "count": 5},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q08",
+    "question": "Show 5 funds with the lowest expense ratios with their names and ratios.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "expense_ratio"],
+      "order_by": "expense_ratio",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q09",
+    "question": "List 5 funds with the highest YTD return percentage.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "ytd_return_percentage"],
+      "order_by": "-ytd_return_percentage",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q10",
+    "question": "Give me 5 funds with the highest 1-year annualized percent.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "1_yr_anlsd_percent"],
+      "order_by": "-1_yr_anlsd_percent",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q11",
+    "question": "Give me 5 funds with the highest 2-year annualized percent.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "2_yr_anlsd_percent"],
+      "order_by": "-2_yr_anlsd_percent",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q12",
+    "question": "Give me 5 funds with the highest 5-year annualized percent.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "5_yr_anlsd_percent"],
+      "order_by": "-5_yr_anlsd_percent",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q13",
+    "question": "Give me 5 funds with the highest 10-year annualized percent.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "10_yr_anlsd_percent"],
+      "order_by": "-10_yr_anlsd_percent",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q14",
+    "question": "Show 5 funds with the highest 3-year volatility.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "3_year_volatility"],
+      "order_by": "-3_year_volatility",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q15",
+    "question": "Show 5 funds with the lowest 3-year volatility.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "3_year_volatility"],
+      "order_by": "3_year_volatility",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q16",
+    "question": "Which funds have the highest expense ratios? Top 5.",
+    "expected_tool": "funds_search",
+    "tool_args": {
+      "columns": ["fund_name", "expense_ratio"],
+      "order_by": "-expense_ratio",
+      "limit": 5
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q17",
+    "question": "Optimize for high YTD return and low expense ratio. Show the top 5.",
+    "expected_tool": "portfolio_optimize",
+    "tool_args": {
+      "count": 5,
+      "objective": {
+        "maximize": ["ytd_return_percentage"],
+        "minimize": ["expense_ratio"]
+      }
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q18",
+    "question": "Optimize for high 5-year annualized return and low expense ratio. Top 5.",
+    "expected_tool": "portfolio_optimize",
+    "tool_args": {
+      "count": 5,
+      "objective": {
+        "maximize": ["5_yr_anlsd_percent"],
+        "minimize": ["expense_ratio"]
+      }
+    },
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q19",
+    "question": "List 5 funds (just names).",
+    "expected_tool": "funds_search",
+    "tool_args": {"columns": ["fund_name"], "limit": 5},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 3}
+  },
+  {
+    "id": "q20",
+    "question": "Show the top 10 funds by YTD return percentage.",
+    "expected_tool": "portfolio_best_return",
+    "tool_args": {"return_column": "ytd_return_percentage", "count": 10},
+    "expect": {"type": "list", "field": "fund_name", "min_matches": 5}
+  }
+]

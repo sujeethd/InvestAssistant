@@ -30,6 +30,18 @@ Then in another shell:
 python aichat/chat_local.py
 ```
 
+## Evaluation harness
+
+Run the golden questions and emit a JSON report:
+
+```bash
+python aichat/eval/run_eval.py
+```
+
+Config (optional):
+- `GOLDEN_QUESTIONS_PATH` (default `aichat/eval/golden_questions.json`)
+- `EVAL_REPORT_PATH` (default `aichat/eval/report.json`)
+
 ## RAG mode
 
 Use the RAG CLI to retrieve relevant rows from the database and answer using that context.

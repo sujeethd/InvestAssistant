@@ -1,0 +1,1104 @@
+{
+  "summary": {
+    "total": 20,
+    "tool_usage_pass": 19,
+    "correctness_pass": 14,
+    "hallucination_pass": 18
+  },
+  "provider": "anthropic",
+  "model": "claude-sonnet-4-5-20250929",
+  "base_url": "http://localhost:8000",
+  "results": [
+    {
+      "id": "q01",
+      "question": "Show me the 5 funds with the lowest expense ratio.",
+      "expected_tool": "portfolio_lowest_expense",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "SPDRW Dow Jones Industrial Average ETF Trust",
+        "BNY Mellon US Large Cap Core Equity ETF",
+        "Vanguard S&P 500 ETF"
+      ],
+      "response": "Here are the 5 funds with the lowest expense ratios:\n\n1. **SPDRW Dow Jones Industrial Average ETF Trust**\n   - Expense Ratio: 0.00%\n   - YTD Return: 7.78%\n   - 5-Year Annualized Return: 12.04%\n   - Morningstar Risk: Average\n\n2. **BNY Mellon US Large Cap Core Equity ETF**\n   - Expense Ratio: 0.00%\n   - YTD Return: 10.77%\n   - 5-Year Annualized Return: 15.06%\n   - Morningstar Risk: Average\n\n3. **Vanguard FTSE All-World ex-US Index Fund ETF Shares**\n   - Expense Ratio: 0.02%\n   - YTD Return: 23.41%\n   - 5-Year Annualized Return: 8.61%\n   - Morningstar Risk: Below Average\n\n4. **State Street SPDR Portfolio S&P 500 ETF**\n   - Expense Ratio: 0.02%\n   - YTD Return: 10.58%\n   - 5-Year Annualized Return: 15.05%\n   - Morningstar Risk: Average\n\n5. **Vanguard S&P 500 ETF**\n   - Expense Ratio: 0.02%\n   - YTD Return: 10.58%\n   - 5-Year Annualized Return: 15.04%\n   - Morningstar Risk: Average\n\nThese funds offer extremely low costs, with two funds having zero expense ratios and the other three at just 0.02%. The Vanguard FTSE All-World ex-US fund provides international diversification, while the others focus on U.S. large-cap stocks.",
+      "tool_calls": [
+        {
+          "name": "portfolio_lowest_expense",
+          "args": {
+            "expense_column": "expense_ratio",
+            "count": 5
+          },
+          "id": "toolu_013BEzwWFsAUTfyCuHeWJkqx"
+        }
+      ],
+      "expected_values_sample": [
+        "SPDRW Dow Jones Industrial Average ETF Trust",
+        "BNY Mellon US Large Cap Core Equity ETF",
+        "Vanguard FTSE AII-World ex-US Index Fund ETF Shares",
+        "State Street@ SPDR@ Portfolio S&P 500@ ETF",
+        "Vanguard S&P 500 ETF"
+      ],
+      "latency_s": 16.0
+    },
+    {
+      "id": "q02",
+      "question": "List the 10 funds with the lowest expense ratio.",
+      "expected_tool": "portfolio_lowest_expense",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "BNY Mellon US Large Cap Core Equity ETF",
+        "SPDRW Dow Jones Industrial Average ETF Trust",
+        "Vanguard S&P 500 ETF",
+        "Vanguard Total Stock Market Index Fund ETF Shares",
+        "iShares Core S&P 500 ETF",
+        "iShares Morningstar U.S. Equity ETF"
+      ],
+      "response": "Here are the 10 funds with the lowest expense ratio:\n\n1. **BNY Mellon US Large Cap Core Equity ETF** - Expense Ratio: 0.00%\n2. **SPDRW Dow Jones Industrial Average ETF Trust** - Expense Ratio: 0.00%\n3. **Vanguard FTSE All-World ex-US Index Fund ETF Shares** - Expense Ratio: 0.02%\n4. **Vanguard S&P 500 ETF** - Expense Ratio: 0.02%\n5. **State Street SPDR Portfolio S&P 500 ETF** - Expense Ratio: 0.02%\n6. **Vanguard Total Stock Market Index Fund ETF Shares** - Expense Ratio: 0.02%\n7. **Schwab U.S. Broad Market ETF** - Expense Ratio: 0.03%\n8. **iShares Core S&P 500 ETF** - Expense Ratio: 0.03%\n9. **Schwab U.S. Large-Cap ETF** - Expense Ratio: 0.03%\n10. **iShares Morningstar U.S. Equity ETF** - Expense Ratio: 0.03%\n\nThese funds have exceptionally low expense ratios, with two funds charging no expenses at all, and the others ranging from just 0.02% to 0.03%. These are primarily large-cap and broad market index ETFs from well-known providers like Vanguard, Schwab, iShares, and SPDR.",
+      "tool_calls": [
+        {
+          "name": "portfolio_lowest_expense",
+          "args": {
+            "expense_column": "expense_ratio",
+            "count": 10
+          },
+          "id": "toolu_017Wco2tBNjAaZyyP9cfBcGo"
+        }
+      ],
+      "expected_values_sample": [
+        "BNY Mellon US Large Cap Core Equity ETF",
+        "SPDRW Dow Jones Industrial Average ETF Trust",
+        "Vanguard FTSE AII-World ex-US Index Fund ETF Shares",
+        "Vanguard S&P 500 ETF",
+        "State Street@ SPDR@ Portfolio S&P 500@ ETF",
+        "Vanguard Total Stock Market Index Fund ETF Shares",
+        "Schwab U.S_ Broad Market ETF TM",
+        "iShares Core S&P 500 ETF",
+        "Schwab U.S. Large-Cap ETFTM",
+        "iShares Morningstar U.S. Equity ETF"
+      ],
+      "latency_s": 6.76
+    },
+    {
+      "id": "q03",
+      "question": "Which funds have the best YTD return percentage? Give the top 5.",
+      "expected_tool": "portfolio_best_return",
+      "tool_usage": "pass",
+      "correctness": "fail",
+      "hallucination": "pass",
+      "errors": [
+        "no_expected_values"
+      ],
+      "matched": [],
+      "response": "Here are the top 5 funds with the best YTD return percentage:\n\n1. **Vanguard Russell 3000 Index Fund ETF Shares** - 9.96%\n2. **Global X S&P 5000 Catholic Values ETF** - 9.96%\n3. **iShares ESG Aware MSCI USA ETF** - 9.81%\n4. **Invesco S&P SmallCap Industrials ETF** - 9.3%\n5. **VictoryShares US Multi-Factor Minimum Volatility ETF** - 9.28%\n\nThese funds show the highest year-to-date performance in the database, with the top two tied at 9.96%.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "ytd_return",
+            "count": 5
+          },
+          "id": "toolu_016PMeK9dCS5krMZUC5CzGHB"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_015vveDnfNbmTsCM8teXrkTd"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "ytd_return_percentage",
+            "count": 5
+          },
+          "id": "toolu_01FW6wT63WERbmDc1GBdMiFu"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "fund_name",
+              "ytd_return_percentage"
+            ],
+            "order_by": "ytd_return_percentage",
+            "limit": 5
+          },
+          "id": "toolu_01W5mMbXjW3jwnzoqBosnYKD"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "fund_name",
+              "ytd_return_percentage"
+            ],
+            "order_by": "-ytd_return_percentage",
+            "limit": 5
+          },
+          "id": "toolu_01YWLTer8ZRMmRV48L9WT36W"
+        }
+      ],
+      "expected_values_sample": [],
+      "latency_s": 14.26
+    },
+    {
+      "id": "q04",
+      "question": "Top 5 funds by 1-year annualized percent return.",
+      "expected_tool": "portfolio_best_return",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "Global X Copper Miners ETF",
+        "First Trust SMID Capital Strength ETF",
+        "Global X Uranium ETF",
+        "Pacer Lunt MidCap Multi-Factor Alternator ETF"
+      ],
+      "response": "Here are the top 5 funds by 1-year annualized percent return:\n\n1. **Global X Copper Miners ETF** - 81.17%\n   - YTD Return: 84.88%\n   - Expense Ratio: 0.65%\n   - Morningstar Risk: High\n\n2. **State Street SPDR S&P Metals & Mining ETF** - 74.88%\n   - YTD Return: 77.05%\n   - Expense Ratio: 0.35%\n   - Morningstar Risk: High\n\n3. **First Trust SMID Capital Strength ETF** - 55.57%\n   - YTD Return: 3.97%\n   - Expense Ratio: 0.60%\n   - Morningstar Risk: Average\n\n4. **Global X Uranium ETF** - 55.46%\n   - YTD Return: 58.85%\n   - Expense Ratio: 0.69%\n   - Morningstar Risk: High\n\n5. **Pacer Lunt MidCap Multi-Factor Alternator ETF** - 55.26%\n   - YTD Return: 3.71%\n   - Expense Ratio: 0.60%\n   - Morningstar Risk: Above Average\n\nThe top performers are heavily concentrated in commodity/metals mining sectors, with the copper and metals & mining ETFs showing exceptional returns over 70%.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "1-year annualized percent return",
+            "count": 5
+          },
+          "id": "toolu_01HnFoTBd6fcuZeDeVKkLxAu"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01HCygSTxA2zqG5QqjM5BSUh"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "1_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_018MU4m5KxrPf6QX9g5KhEkE"
+        }
+      ],
+      "expected_values_sample": [
+        "Global X Copper Miners ETF",
+        "State Street@ SPDR@ s&P@ Metals & Mining ETF",
+        "First Trust SMID Capital Strength ETF",
+        "Global X Uranium ETF",
+        "Pacer Lunt MidCap Multi-Factor Alternator ETF"
+      ],
+      "latency_s": 11.53
+    },
+    {
+      "id": "q05",
+      "question": "Top 5 funds by 2-year annualized percent return.",
+      "expected_tool": "portfolio_best_return",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "Amplify Blockchain Technology ETF",
+        "iShares MSCI Global Gold Miners ETF",
+        "VanEck Semiconductor ETF",
+        "Global X Gold Explorers ETF",
+        "VanEck Gold Miners ETF"
+      ],
+      "response": "Here are the **top 5 funds by 2-year annualized percent return**:\n\n1. **Amplify Blockchain Technology ETF** - 54.79%\n   - Morningstar Risk: Below Average\n   - YTD Return: 26.94%\n   - Expense Ratio: 0.70%\n\n2. **iShares MSCI Global Gold Miners ETF** - 48.20%\n   - Morningstar Risk: Average\n   - YTD Return: 162.07%\n   - Expense Ratio: 0.39%\n\n3. **VanEck Semiconductor ETF** - 48.19%\n   - Morningstar Risk: High\n   - YTD Return: 40.51%\n   - Expense Ratio: 0.35%\n\n4. **Global X Gold Explorers ETF** - 47.86%\n   - Morningstar Risk: Above Average\n   - YTD Return: 177.51%\n   - Expense Ratio: 0.65%\n\n5. **VanEck Gold Miners ETF** - 42.98%\n   - Morningstar Risk: Average\n   - YTD Return: 151.36%\n   - Expense Ratio: 0.50%\n\nThe top performer over the 2-year period is the Amplify Blockchain Technology ETF with a 54.79% annualized return, followed closely by several gold mining and semiconductor ETFs.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "2-year annualized percent return",
+            "count": 5
+          },
+          "id": "toolu_01NTVHus2ghrSgkWpGukmhAq"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01LfJMCNcnfQr6A8iDiU2KkR"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "2_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_01XaRg8oXJ557QLrpnnidLYU"
+        }
+      ],
+      "expected_values_sample": [
+        "Amplify Blockchain Technology ETF",
+        "iShares MSCI Global Gold Miners ETF",
+        "VanEck Semiconductor ETF",
+        "Global X Gold Explorers ETF",
+        "VanEck Gold Miners ETF"
+      ],
+      "latency_s": 9.01
+    },
+    {
+      "id": "q06",
+      "question": "Top 5 funds by 5-year annualized percent return.",
+      "expected_tool": "portfolio_best_return",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "Global X Uranium ETF",
+        "VanEck Semiconductor ETF",
+        "Sprott Uranium Miners ETF",
+        "Invesco Energy Exploration & Production ETF"
+      ],
+      "response": "Here are the top 5 funds by 5-year annualized percent return:\n\n1. **Global X Uranium ETF** - 28.87%\n   - Risk: High\n   - Expense Ratio: 0.69%\n   - YTD Return: 58.85%\n\n2. **VanEck Semiconductor ETF** - 28.60%\n   - Risk: High\n   - Expense Ratio: 0.35%\n   - YTD Return: 40.51%\n\n3. **State Street SPDR S&P Metals & Mining ETF** - 28.29%\n   - Risk: High\n   - Expense Ratio: 0.35%\n   - YTD Return: 77.05%\n\n4. **Sprott Uranium Miners ETF** - 25.95%\n   - Risk: High\n   - Expense Ratio: 0.75%\n   - YTD Return: 32.99%\n\n5. **Invesco Energy Exploration & Production ETF** - 25.50%\n   - Risk: Above Average\n   - Expense Ratio: 0.50%\n   - YTD Return: -10.82%\n\nAll of these top-performing funds are in the commodities and specialized sectors (uranium, semiconductors, metals/mining, and energy), and they all carry high or above-average risk ratings.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "5_year_annualized_return",
+            "count": 5
+          },
+          "id": "toolu_01EErAfKmfbDJ3TD6VpAK6x3"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01AnvDxG8MLePehwz1mFpkkM"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "5_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_011eHHcrSnRsv5FPTPDXkQFA"
+        }
+      ],
+      "expected_values_sample": [
+        "Global X Uranium ETF",
+        "VanEck Semiconductor ETF",
+        "State Street@ SPDR@ s&P@ Metals & Mining ETF",
+        "Sprott Uranium Miners ETF",
+        "Invesco Energy Exploration & Production ETF"
+      ],
+      "latency_s": 10.23
+    },
+    {
+      "id": "q07",
+      "question": "Top 5 funds by 10-year annualized percent return.",
+      "expected_tool": "portfolio_best_return",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "iShares MSCI Europe Financials ETF",
+        "Xtrackers MSCI EAFE Hedged Equity ETF",
+        "Wisdom Tree International MidCap Dividend Fund",
+        "VanEck Semiconductor ETF",
+        "iShares Semiconductor ETF"
+      ],
+      "response": "Here are the top 5 funds by 10-year annualized percent return:\n\n1. **iShares MSCI Europe Financials ETF** - 1180.0%\n   - Expense Ratio: 0.48%\n   - YTD Return: 54.84%\n   - Morningstar Risk: High\n\n2. **Xtrackers MSCI EAFE Hedged Equity ETF** - 1167.0%\n   - Expense Ratio: 0.35%\n   - YTD Return: 14.53%\n   - Morningstar Risk: Low\n\n3. **Wisdom Tree International MidCap Dividend Fund** - 856.0%\n   - Expense Ratio: 0.58%\n   - YTD Return: 28.12%\n   - Morningstar Risk: Below Average\n\n4. **VanEck Semiconductor ETF** - 32.27%\n   - Expense Ratio: 0.35%\n   - YTD Return: 40.51%\n   - Morningstar Risk: High\n\n5. **iShares Semiconductor ETF** - 28.57%\n   - Expense Ratio: 0.48%\n   - YTD Return: 32.6%\n   - Morningstar Risk: Above Average\n\n**Note:** The first three funds show extremely high 10-year returns (over 800%), which may indicate data quality issues or exceptional circumstances. The semiconductor ETFs in positions 4 and 5 show more typical annualized returns around 28-32%.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "10_year_annualized_return",
+            "count": 5
+          },
+          "id": "toolu_01QA3wChKK2ckjA8mpN1Teqq"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_016a5WqfGoGBJKU2ySBvGvj6"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "10_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_01G67coGZSrZUHmnPiphrUc5"
+        }
+      ],
+      "expected_values_sample": [
+        "iShares MSCI Europe Financials ETF",
+        "Xtrackers MSCI EAFE Hedged Equity ETF",
+        "Wisdom Tree International MidCap Dividend Fund",
+        "VanEck Semiconductor ETF",
+        "iShares Semiconductor ETF"
+      ],
+      "latency_s": 11.2
+    },
+    {
+      "id": "q08",
+      "question": "Show 5 funds with the lowest expense ratios with their names and ratios.",
+      "expected_tool": "funds_search",
+      "tool_usage": "fail",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [
+        "missing_expected_tool"
+      ],
+      "matched": [
+        "SPDRW Dow Jones Industrial Average ETF Trust",
+        "BNY Mellon US Large Cap Core Equity ETF",
+        "Vanguard FTSE AII-World ex-US Index Fund ETF Shares",
+        "State Street@ SPDR@ Portfolio S&P 500@ ETF",
+        "Vanguard S&P 500 ETF"
+      ],
+      "response": "Here are the 5 funds with the lowest expense ratios:\n\n| Fund Name | Expense Ratio |\n|-----------|---------------|\n| SPDRW Dow Jones Industrial Average ETF Trust | 0.00% |\n| BNY Mellon US Large Cap Core Equity ETF | 0.00% |\n| Vanguard FTSE AII-World ex-US Index Fund ETF Shares | 0.02% |\n| State Street@ SPDR@ Portfolio S&P 500@ ETF | 0.02% |\n| Vanguard S&P 500 ETF | 0.02% |\n\nThe top two funds have no expense ratio (0.00%), while the remaining three have very low expense ratios of just 0.02%.",
+      "tool_calls": [
+        {
+          "name": "portfolio_lowest_expense",
+          "args": {
+            "expense_column": "expense_ratio",
+            "count": 5
+          },
+          "id": "toolu_018DcGLKFsWJ6oVEFNpC3Gww"
+        }
+      ],
+      "expected_values_sample": [
+        "SPDRW Dow Jones Industrial Average ETF Trust",
+        "BNY Mellon US Large Cap Core Equity ETF",
+        "Vanguard FTSE AII-World ex-US Index Fund ETF Shares",
+        "State Street@ SPDR@ Portfolio S&P 500@ ETF",
+        "Vanguard S&P 500 ETF"
+      ],
+      "latency_s": 2.93
+    },
+    {
+      "id": "q09",
+      "question": "List 5 funds with the highest YTD return percentage.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "fail",
+      "hallucination": "pass",
+      "errors": [
+        "missing_expected_values"
+      ],
+      "matched": [],
+      "response": "",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "ytd_return",
+            "count": 5
+          },
+          "id": "toolu_01Tgoh2SXnzv46yJe48TtqCq"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_011BQjX9Zh1CMRhjn8Gw6zHQ"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "ytd_return_percentage",
+            "count": 5
+          },
+          "id": "toolu_01WgTAqkT9SsFgMoj8cRV1nB"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "fund_name",
+              "ytd_return_percentage"
+            ],
+            "order_by": "ytd_return_percentage DESC",
+            "limit": 5
+          },
+          "id": "toolu_01G5y4T9sbiJgvjUtumMn9GJ"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "fund_name",
+              "ytd_return_percentage"
+            ],
+            "order_by": "ytd_return_percentage",
+            "limit": 5
+          },
+          "id": "toolu_01LH9bEuB4v9CTcrZDoaT3tN"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "fund_name",
+              "ytd_return_percentage"
+            ]
+          },
+          "id": "toolu_017uZh5yLeJ5wT2J5Je6Fqu7"
+        }
+      ],
+      "expected_values_sample": [
+        "Vanguard Russell 3000 Index Fund ETF Shares",
+        "Global X S&P 5000 Catholic Values ETF",
+        "iShares ESG Aware MSCI USA ETF",
+        "Invesco S&P SmallCap Industrials ETF",
+        "VictoryShares US Multi-Factor Minimum Volatility ETF"
+      ],
+      "latency_s": 12.75
+    },
+    {
+      "id": "q10",
+      "question": "Give me 5 funds with the highest 1-year annualized percent.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "fail",
+      "hallucination": "fail",
+      "errors": [
+        "missing_expected_values",
+        "possible_hallucination"
+      ],
+      "matched": [],
+      "response": "Here are the 5 funds with the highest 1-year annualized percent:\n\n1. **Global X Copper Miners ETF** - 81.17%\n   - YTD Return: 84.88%\n   - 3-Year Volatility: 26.64\n   - Expense Ratio: 0.65%\n   - Risk: High\n\n2. **State Street SPDR S&P Metals & Mining ETF** - 74.88%\n   - YTD Return: 77.05%\n   - 3-Year Volatility: 26.08\n   - Expense Ratio: 0.35%\n   - Risk: High\n\n3. **First Trust SMID Capital Strength ETF** - 55.57%\n   - YTD Return: 3.97%\n   - 3-Year Volatility: 15.09\n   - Expense Ratio: 0.60%\n   - Risk: Average\n\n4. **Global X Uranium ETF** - 55.46%\n   - YTD Return: 58.85%\n   - 3-Year Volatility: 36.56\n   - Expense Ratio: 0.69%\n   - Risk: High\n\n5. **Pacer Lunt MidCap Multi-Factor Alternator ETF** - 55.26%\n   - YTD Return: 3.71%\n   - 3-Year Volatility: 17.90\n   - Expense Ratio: 0.60%\n   - Risk: Above Average\n\nNote that the top two funds are in the metals and mining sector with exceptionally high returns, but they also come with high risk ratings and volatility.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "1-year annualized percent",
+            "count": 5
+          },
+          "id": "toolu_01DLbP24xJzGjm8WLtsc2LFq"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01WCe2ytkoWujqF2MVanttoW"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "1_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_01QrrfRmXBPv1FCfYcwAb4sQ"
+        }
+      ],
+      "expected_values_sample": [
+        "U.S. Global GO GOLD and Precious Metal Miners ETF",
+        "iShares MSCI Global Gold Miners ETF",
+        "Global X Gold Explorers ETF",
+        "Sprott Gold Miners ETF",
+        "VanEck BDC Income ETF"
+      ],
+      "latency_s": 12.7
+    },
+    {
+      "id": "q11",
+      "question": "Give me 5 funds with the highest 2-year annualized percent.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "Amplify Blockchain Technology ETF",
+        "iShares MSCI Global Gold Miners ETF",
+        "VanEck Semiconductor ETF",
+        "Global X Gold Explorers ETF",
+        "VanEck Gold Miners ETF"
+      ],
+      "response": "Here are the 5 funds with the highest 2-year annualized percent:\n\n1. **Amplify Blockchain Technology ETF** - 54.79%\n   - YTD Return: 26.94%\n   - 1-Year: 20.37%\n   - 5-Year: 17.06%\n   - Expense Ratio: 0.70%\n\n2. **iShares MSCI Global Gold Miners ETF** - 48.20%\n   - YTD Return: 162.07%\n   - 5-Year: 23.51%\n   - 10-Year: 24.08%\n   - Expense Ratio: 0.39%\n\n3. **VanEck Semiconductor ETF** - 48.19%\n   - YTD Return: 40.51%\n   - 1-Year: 35.45%\n   - 5-Year: 28.60%\n   - 10-Year: 32.27%\n   - Expense Ratio: 0.35%\n\n4. **Global X Gold Explorers ETF** - 47.86%\n   - YTD Return: 177.51%\n   - 5-Year: 21.85%\n   - 10-Year: 24.34%\n   - Expense Ratio: 0.65%\n\n5. **VanEck Gold Miners ETF** - 42.98%\n   - YTD Return: 151.36%\n   - 5-Year: 22.16%\n   - 10-Year: 22.80%\n   - Expense Ratio: 0.50%\n\nThese funds show strong 2-year performance, with the Amplify Blockchain Technology ETF leading at 54.79%. Notably, three of the top five are gold mining-related ETFs, which have shown exceptional recent performance.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "2-year annualized percent",
+            "count": 5
+          },
+          "id": "toolu_01M9r7pi23KSiBYnF1TR3GYw"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01BVzXBEFenxnBMmUnAqc1xV"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "2_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_01SzwyyZMWtVedmsddbBWHXp"
+        }
+      ],
+      "expected_values_sample": [
+        "Amplify Blockchain Technology ETF",
+        "iShares MSCI Global Gold Miners ETF",
+        "VanEck Semiconductor ETF",
+        "Global X Gold Explorers ETF",
+        "VanEck Gold Miners ETF"
+      ],
+      "latency_s": 10.6
+    },
+    {
+      "id": "q12",
+      "question": "Give me 5 funds with the highest 5-year annualized percent.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "Global X Uranium ETF",
+        "VanEck Semiconductor ETF",
+        "Sprott Uranium Miners ETF",
+        "Invesco Energy Exploration & Production ETF"
+      ],
+      "response": "Here are the 5 funds with the highest 5-year annualized percent:\n\n1. **Global X Uranium ETF** - 28.87%\n   - Morningstar Risk: High\n   - YTD Return: 58.85%\n   - Expense Ratio: 0.69%\n\n2. **VanEck Semiconductor ETF** - 28.60%\n   - Morningstar Risk: High\n   - YTD Return: 40.51%\n   - Expense Ratio: 0.35%\n\n3. **State Street SPDR S&P Metals & Mining ETF** - 28.29%\n   - Morningstar Risk: High\n   - YTD Return: 77.05%\n   - Expense Ratio: 0.35%\n\n4. **Sprott Uranium Miners ETF** - 25.95%\n   - Morningstar Risk: High\n   - YTD Return: 32.99%\n   - Expense Ratio: 0.75%\n\n5. **Invesco Energy Exploration & Production ETF** - 25.50%\n   - Morningstar Risk: Above Average\n   - YTD Return: -10.82%\n   - Expense Ratio: 0.50%\n\nNote that all of these top-performing funds are in the commodities and energy sectors (uranium, semiconductors, metals & mining, and energy exploration) and carry high or above-average risk ratings.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "5-year annualized percent",
+            "count": 5
+          },
+          "id": "toolu_01AFJWmpKiLcqcxT35wwGTEL"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01Pb8zZVDbU3WBhzyEDf5g1x"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "5_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_01CevPv2breCM7wiEbHGGJ29"
+        }
+      ],
+      "expected_values_sample": [
+        "Global X Uranium ETF",
+        "VanEck Semiconductor ETF",
+        "State Street@ SPDR@ s&P@ Metals & Mining ETF",
+        "Sprott Uranium Miners ETF",
+        "Invesco Energy Exploration & Production ETF"
+      ],
+      "latency_s": 11.21
+    },
+    {
+      "id": "q13",
+      "question": "Give me 5 funds with the highest 10-year annualized percent.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "fail",
+      "hallucination": "fail",
+      "errors": [
+        "missing_expected_values",
+        "possible_hallucination"
+      ],
+      "matched": [],
+      "response": "Here are the 5 funds with the highest 10-year annualized percent:\n\n1. **iShares MSCI Europe Financials ETF** - 1180.0% (10-year annualized)\n   - YTD Return: 54.84%\n   - Expense Ratio: 0.48%\n   - Risk: High\n\n2. **Xtrackers MSCI EAFE Hedged Equity ETF** - 1167.0% (10-year annualized)\n   - YTD Return: 14.53%\n   - Expense Ratio: 0.35%\n   - Risk: Low\n\n3. **Wisdom Tree International MidCap Dividend Fund** - 856.0% (10-year annualized)\n   - YTD Return: 28.12%\n   - Expense Ratio: 0.58%\n   - Risk: Below Average\n\n4. **VanEck Semiconductor ETF** - 32.27% (10-year annualized)\n   - YTD Return: 40.51%\n   - Expense Ratio: 0.35%\n   - Risk: High\n\n5. **iShares Semiconductor ETF** - 28.57% (10-year annualized)\n   - YTD Return: 32.6%\n   - Expense Ratio: 0.48%\n   - Risk: Above Average\n\nNote: The first three funds show unusually high 10-year annualized returns (over 800%), which may indicate data quality issues or represent cumulative returns rather than annualized returns. You may want to verify these figures before making any investment decisions.",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "10-year annualized percent",
+            "count": 5
+          },
+          "id": "toolu_0194CHfjDi969jyrQrmq3Xyz"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01Rzup5b65Jd6X9b4SzouR4x"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "10_yr_anlsd_percent",
+            "count": 5
+          },
+          "id": "toolu_01FFsstzcDkMpNGmzrMM8o5W"
+        }
+      ],
+      "expected_values_sample": [
+        "Defiance Quantum ETF",
+        "Democratic Large Cap Core ETF",
+        "ClearBridge Large Cap Growth Select ETF",
+        "Defiance Connective Technologies ETF",
+        "Fidelity Disruptive Communications ETF"
+      ],
+      "latency_s": 13.07
+    },
+    {
+      "id": "q14",
+      "question": "Show 5 funds with the highest 3-year volatility.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "Amplify Blockchain Technology ETF",
+        "Global X Uranium ETF",
+        "Sprott Uranium Miners ETF",
+        "Global X Gold Explorers ETF"
+      ],
+      "response": "Here are the 5 funds with the highest 3-year volatility:\n\n1. **Amplify Blockchain Technology ETF**\n   - 3-Year Volatility: 41.0%\n   - Morningstar Risk: Below Average\n   - YTD Return: 26.94%\n   - Expense Ratio: 0.70%\n\n2. **Global X Uranium ETF**\n   - 3-Year Volatility: 36.56%\n   - Morningstar Risk: High\n   - YTD Return: 58.85%\n   - Expense Ratio: 0.69%\n\n3. **Sprott Uranium Miners ETF**\n   - 3-Year Volatility: 36.23%\n   - Morningstar Risk: High\n   - YTD Return: 32.99%\n   - Expense Ratio: 0.75%\n\n4. **Global X Gold Explorers ETF**\n   - 3-Year Volatility: 32.14%\n   - Morningstar Risk: Above Average\n   - YTD Return: 177.51%\n   - Expense Ratio: 0.65%\n\n5. **State Street SPDR S&P Semiconductor ETF**\n   - 3-Year Volatility: 31.05%\n   - Morningstar Risk: High\n   - YTD Return: 22.82%\n   - Expense Ratio: 0.35%\n\nThese funds show significant volatility, with sector-specific ETFs (blockchain, uranium, gold explorers, and semiconductors) dominating the list. High volatility indicates larger price swings and potentially higher risk.",
+      "tool_calls": [
+        {
+          "name": "funds_search",
+          "args": {
+            "order_by": "3-year volatility DESC",
+            "limit": 5
+          },
+          "id": "toolu_01HxMBVajRDrBh9UBVHfPd9i"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "order_by": "3_year_volatility DESC",
+            "limit": 5
+          },
+          "id": "toolu_01WDBk66NnoqVXx6xupmbDnm"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_013PQYXM9XaFjytzhNdEG3SL"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "order_by": "3_year_volatility DESC",
+            "limit": 5
+          },
+          "id": "toolu_01Fcea9RKZqKLXy9bwKrQxuB"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "3_year_volatility",
+            "count": 5
+          },
+          "id": "toolu_01WRQK4fWR2161k7GsxPzcvD"
+        }
+      ],
+      "expected_values_sample": [
+        "Amplify Blockchain Technology ETF",
+        "Global X Uranium ETF",
+        "Sprott Uranium Miners ETF",
+        "Global X Gold Explorers ETF",
+        "State Street@ SPDRW S&P@ Semiconductor ETF"
+      ],
+      "latency_s": 12.74
+    },
+    {
+      "id": "q15",
+      "question": "Show 5 funds with the lowest 3-year volatility.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "Wisdom Tree International Multifactor Fund",
+        "Invesco S&P Emerging Markets Low Volatility ETF",
+        "Equable Shares Hedged Equity ETF"
+      ],
+      "response": "Here are the 5 funds with the lowest 3-year volatility:\n\n1. **Wisdom Tree International Multifactor Fund**\n   - 3-Year Volatility: 5.62\n   - Morningstar Risk: Low\n   - YTD Return: 16.32%\n   - Expense Ratio: 0.38%\n\n2. **Invesco S&P Emerging Markets Low Volatility ETF**\n   - 3-Year Volatility: 6.17\n   - Morningstar Risk: Low\n   - YTD Return: 13.91%\n   - Expense Ratio: 0.29%\n\n3. **SPDR\u00ae S&P\u00ae International Dividend ETF**\n   - 3-Year Volatility: 6.70\n   - Morningstar Risk: Low\n   - YTD Return: 22.03%\n   - Expense Ratio: 0.45%\n\n4. **Equable Shares Hedged Equity ETF**\n   - 3-Year Volatility: 6.76\n   - Morningstar Risk: Below Average\n   - YTD Return: 2.59%\n   - Expense Ratio: 0.88%\n\n5. **AB International Low Volatility ETF**\n   - 3-Year Volatility: 6.98\n   - Morningstar Risk: Low\n   - YTD Return: 18.35%\n   - Expense Ratio: 0.50%\n\nThese funds are all characterized by low volatility, with most having a \"Low\" Morningstar risk rating, making them suitable for investors seeking stability in their portfolio.",
+      "tool_calls": [
+        {
+          "name": "portfolio_lowest_expense",
+          "args": {
+            "expense_column": "3-year volatility",
+            "count": 5
+          },
+          "id": "toolu_016cV3go1xL7taqruJCgBSn2"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01N2hHQDz6QNJA5RFs1gJQV1"
+        },
+        {
+          "name": "portfolio_lowest_expense",
+          "args": {
+            "expense_column": "3_year_volatility",
+            "count": 5
+          },
+          "id": "toolu_01KykE52qutdW98ZBaubAP6q"
+        }
+      ],
+      "expected_values_sample": [
+        "Wisdom Tree International Multifactor Fund",
+        "Invesco S&P Emerging Markets Low Volatility ETF",
+        "SPDR@ S&P@ International Dividend ETF",
+        "Equable Shares Hedged Equity ETF",
+        "AB International Low Volatility Equity ETF"
+      ],
+      "latency_s": 13.31
+    },
+    {
+      "id": "q16",
+      "question": "Which funds have the highest expense ratios? Top 5.",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "RH Tactical Rotation ETF",
+        "Ballast SmalllMid Cap ETF",
+        "First Trust Global Tactical Commodity Strategy Fund",
+        "OTG Latin America ETF",
+        "First Trust EIP Power Solutions ETF"
+      ],
+      "response": "Here are the **top 5 funds with the highest expense ratios**:\n\n1. **RH Tactical Rotation ETF** - Expense Ratio: **1.00%**\n   - Morningstar Risk: Above Average\n   - YTD Return: 9.51%\n   - 1-Year Return: 6.0%\n\n2. **Ballast SmalllMid Cap ETF** - Expense Ratio: **0.95%**\n   - Morningstar Risk: Average\n   - YTD Return: 0.8%\n   - 1-Year Return: -0.02%\n\n3. **First Trust Global Tactical Commodity Strategy Fund** - Expense Ratio: **0.95%**\n   - Morningstar Risk: Below Average\n   - YTD Return: 8.02%\n   - 1-Year Return: 9.37%\n\n4. **OTG Latin America ETF** - Expense Ratio: **0.95%**\n   - Morningstar Risk: Low\n   - YTD Return: 27.83%\n   - 1-Year Return: 26.31%\n\n5. **First Trust EIP Power Solutions ETF** - Expense Ratio: **0.95%**\n   - Morningstar Risk: Low\n   - YTD Return: 8.45%\n   - 1-Year Return: 7.81%\n\nThe RH Tactical Rotation ETF has the highest expense ratio at 1.00%, while the other four funds are tied at 0.95%.",
+      "tool_calls": [
+        {
+          "name": "funds_search",
+          "args": {
+            "order_by": "expense_ratio DESC",
+            "limit": 5
+          },
+          "id": "toolu_01YcKuqexmFF9JN3eMjcBuFE"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01W67AHBdJ5ZtMj4kEugRNSy"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "expense_ratio",
+            "count": 5
+          },
+          "id": "toolu_018ZD54JhGAnV1qURTR2am92"
+        }
+      ],
+      "expected_values_sample": [
+        "RH Tactical Rotation ETF",
+        "Ballast SmalllMid Cap ETF",
+        "First Trust Global Tactical Commodity Strategy Fund",
+        "OTG Latin America ETF",
+        "First Trust EIP Power Solutions ETF"
+      ],
+      "latency_s": 10.59
+    },
+    {
+      "id": "q17",
+      "question": "Optimize for high YTD return and low expense ratio. Show the top 5.",
+      "expected_tool": "portfolio_optimize",
+      "tool_usage": "pass",
+      "correctness": "fail",
+      "hallucination": "pass",
+      "errors": [
+        "no_expected_values"
+      ],
+      "matched": [],
+      "response": "",
+      "tool_calls": [
+        {
+          "name": "portfolio_optimize",
+          "args": {
+            "objective": {
+              "maximize": [
+                "ytd_return"
+              ],
+              "minimize": [
+                "expense_ratio"
+              ]
+            },
+            "count": 5
+          },
+          "id": "toolu_01ShfSHA6mXYF4ejxpPSUS98"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01P8nhFSHdvsvLL2dGk7kHQA"
+        },
+        {
+          "name": "portfolio_optimize",
+          "args": {
+            "objective": {
+              "maximize": [
+                "ytd_return_percentage"
+              ],
+              "minimize": [
+                "expense_ratio"
+              ]
+            },
+            "count": 5
+          },
+          "id": "toolu_018fFr2xAMNb8uEhCP3cDLHv"
+        },
+        {
+          "name": "portfolio_optimize",
+          "args": {
+            "objective": {
+              "maximize": [
+                "ytd_return_percentage"
+              ],
+              "minimize": [
+                "expense_ratio"
+              ]
+            },
+            "weights": {
+              "ytd_return_percentage": 0.5,
+              "expense_ratio": 0.5
+            },
+            "count": 5
+          },
+          "id": "toolu_019BiDMfF9N39E221veLzzHe"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "ytd_return_percentage",
+            "count": 20
+          },
+          "id": "toolu_0123EKrYwkTW6q8zJzjpuTgK"
+        },
+        {
+          "name": "portfolio_lowest_expense",
+          "args": {
+            "expense_column": "expense_ratio",
+            "count": 20
+          },
+          "id": "toolu_013PgDUw9DqJMw7GGYEzX5d5"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "id",
+              "fund_name",
+              "ytd_return_percentage",
+              "expense_ratio"
+            ],
+            "order_by": "ytd_return_percentage DESC",
+            "limit": 100
+          },
+          "id": "toolu_01B36FMWWuGuSvAHmJjpDa7W"
+        }
+      ],
+      "expected_values_sample": [],
+      "latency_s": 13.73
+    },
+    {
+      "id": "q18",
+      "question": "Optimize for high 5-year annualized return and low expense ratio. Top 5.",
+      "expected_tool": "portfolio_optimize",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "VanEck Semiconductor ETF",
+        "Global X Uranium ETF",
+        "Sprott Uranium Miners ETF",
+        "Invesco Energy Exploration & Production ETF"
+      ],
+      "response": "Here are the top 5 funds optimized for high 5-year annualized return and low expense ratio:\n\n1. **VanEck Semiconductor ETF** (Score: 28.25)\n   - 5-Year Annualized Return: 28.60%\n   - Expense Ratio: 0.35%\n   - Morningstar Risk: High\n   - YTD Return: 40.51%\n\n2. **Global X Uranium ETF** (Score: 28.18)\n   - 5-Year Annualized Return: 28.87%\n   - Expense Ratio: 0.69%\n   - Morningstar Risk: High\n   - YTD Return: 58.85%\n\n3. **State Street SPDR S&P Metals & Mining ETF** (Score: 27.94)\n   - 5-Year Annualized Return: 28.29%\n   - Expense Ratio: 0.35%\n   - Morningstar Risk: High\n   - YTD Return: 77.05%\n\n4. **Sprott Uranium Miners ETF** (Score: 25.20)\n   - 5-Year Annualized Return: 25.95%\n   - Expense Ratio: 0.75%\n   - Morningstar Risk: High\n   - YTD Return: 32.99%\n\n5. **Invesco Energy Exploration & Production ETF** (Score: 25.00)\n   - 5-Year Annualized Return: 25.50%\n   - Expense Ratio: 0.50%\n   - Morningstar Risk: Above Average\n   - YTD Return: -10.82%\n\nThese funds offer excellent 5-year returns (all above 25%) with relatively low expense ratios. Note that most carry high volatility and risk ratings, which is typical for high-performing sector-focused ETFs.",
+      "tool_calls": [
+        {
+          "name": "portfolio_optimize",
+          "args": {
+            "objective": {
+              "maximize": [
+                "return_5year"
+              ],
+              "minimize": [
+                "expense_ratio"
+              ]
+            },
+            "count": 5
+          },
+          "id": "toolu_019wTc9YEVodR37T6oAsyraa"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01DWoaYihBVH1Z99NVM8gMQy"
+        },
+        {
+          "name": "portfolio_optimize",
+          "args": {
+            "objective": {
+              "maximize": [
+                "5_yr_anlsd_percent"
+              ],
+              "minimize": [
+                "expense_ratio"
+              ]
+            },
+            "count": 5
+          },
+          "id": "toolu_011wXxenQ5h7984QQDgRxc92"
+        }
+      ],
+      "expected_values_sample": [
+        "VanEck Semiconductor ETF",
+        "Global X Uranium ETF",
+        "State Street@ SPDR@ s&P@ Metals & Mining ETF",
+        "Sprott Uranium Miners ETF",
+        "Invesco Energy Exploration & Production ETF"
+      ],
+      "latency_s": 22.76
+    },
+    {
+      "id": "q19",
+      "question": "List 5 funds (just names).",
+      "expected_tool": "funds_search",
+      "tool_usage": "pass",
+      "correctness": "pass",
+      "hallucination": "pass",
+      "errors": [],
+      "matched": [
+        "AdvisorShares Dorsey Wright ADR ETF",
+        "Alpha Architect U.S. Quantitative Value ETF",
+        "Bny Mellon Enhanced Dividend Income ETF",
+        "ClearBridge Large Cap Growth Select ETF",
+        "Defiance Connective Technologies ETF"
+      ],
+      "response": "Here are 5 funds:\n\n1. AdvisorShares Dorsey Wright ADR ETF\n2. Alpha Architect U.S. Quantitative Value ETF\n3. Bny Mellon Enhanced Dividend Income ETF\n4. ClearBridge Large Cap Growth Select ETF\n5. Defiance Connective Technologies ETF",
+      "tool_calls": [
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "name"
+            ],
+            "limit": 5
+          },
+          "id": "toolu_01AsFf1mQpDRi5HziQ449wLu"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "fund_name"
+            ],
+            "limit": 5
+          },
+          "id": "toolu_01Tgs7sMqCWzy8oVZbap7wNc"
+        }
+      ],
+      "expected_values_sample": [
+        "AdvisorShares Dorsey Wright ADR ETF",
+        "Alpha Architect U.S. Quantitative Value ETF",
+        "Bny Mellon Enhanced Dividend Income ETF",
+        "ClearBridge Large Cap Growth Select ETF",
+        "Defiance Connective Technologies ETF"
+      ],
+      "latency_s": 5.8
+    },
+    {
+      "id": "q20",
+      "question": "Show the top 10 funds by YTD return percentage.",
+      "expected_tool": "portfolio_best_return",
+      "tool_usage": "pass",
+      "correctness": "fail",
+      "hallucination": "pass",
+      "errors": [
+        "no_expected_values"
+      ],
+      "matched": [],
+      "response": "",
+      "tool_calls": [
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "ytd_return",
+            "count": 10
+          },
+          "id": "toolu_019fZJxcbg6mDwyT6BcYjdup"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "limit": 1
+          },
+          "id": "toolu_01JgUcciZF3n4ozR3t6PAgAp"
+        },
+        {
+          "name": "portfolio_best_return",
+          "args": {
+            "return_column": "ytd_return_percentage",
+            "count": 10
+          },
+          "id": "toolu_01KqcyTPLGm5CBtSWCQRociD"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "order_by": "ytd_return_percentage desc",
+            "limit": 10
+          },
+          "id": "toolu_01MDj6YDBq6Aj8PsZFLuAUV9"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "order_by": "ytd_return_percentage",
+            "limit": 10
+          },
+          "id": "toolu_01JQ2vVj66QwmoE4Ei4geTWN"
+        },
+        {
+          "name": "funds_search",
+          "args": {
+            "columns": [
+              "fund_name",
+              "ytd_return_percentage",
+              "expense_ratio",
+              "morningstart_risk"
+            ],
+            "limit": 500
+          },
+          "id": "toolu_01SEKbbkbmTrUdWHT4XWeuqv"
+        }
+      ],
+      "expected_values_sample": [],
+      "latency_s": 18.7
+    }
+  ]
+}
