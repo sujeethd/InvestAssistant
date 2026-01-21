@@ -22,6 +22,7 @@ The service reads DB settings from `./.env` (same format as the other scripts).
 - `POST /funds/search`
 - `POST /funds/summary`
 - `POST /rag/search`
+- `POST /rag/semantic`
 
 ### Example
 

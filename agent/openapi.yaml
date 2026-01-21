@@ -107,6 +107,23 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RagSearchResponse"
+  /rag/semantic:
+    post:
+      operationId: ragSemanticSearch
+      summary: Retrieve relevant rows using vector similarity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RagSemanticRequest"
+      responses:
+        "200":
+          description: RAG semantic results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RagSemanticResponse"
 components:
   schemas:
     FundSearchRequest:
@@ -211,6 +228,25 @@ components:
           type: integer
           default: 50
       required: [query]
+    RagSemanticRequest:
+      type: object
+      properties:
+        embedding:
+          type: array
+          items: { type: number }
+        table:
+          type: string
+          default: fund_data
+        embeddings_table:
+          type: string
+          default: fund_embeddings
+        columns:
+          type: array
+          items: { type: string }
+        limit:
+          type: integer
+          default: 50
+      required: [embedding]
     Objective:
       type: object
       properties:
@@ -254,6 +290,14 @@ components:
         summary:
           type: object
     RagSearchResponse:
+      type: object
+      properties:
+        rows:
+          type: array
+          items: { type: object }
+        count:
+          type: integer
+    RagSemanticResponse:
       type: object
       properties:
         rows:

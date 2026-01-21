@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 import requests
 from openai import OpenAI
 
+from rag_utils import get_embedding, parse_env_list
 
 def load_dotenv(path: str) -> None:
     if not os.path.exists(path):
@@ -46,14 +47,6 @@ def get_system_prompt() -> str:
     return default_prompt
 
 
-def parse_env_list(value: Optional[str]) -> Optional[List[str]]:
-    if not value:
-        return None
-    items = [v.strip() for v in value.split(",")]
-    items = [v for v in items if v]
-    return items or None
-
-
 def call_local_api(base_url: str, name: str, args: Dict[str, Any]) -> Dict[str, Any]:
     endpoints = {
         "funds_search": "/funds/search",
@@ -90,6 +83,34 @@ def call_rag_api(
     if text_columns:
         payload["text_columns"] = text_columns
     url = base_url.rstrip("/") + "/rag/search"
+    try:
+        resp = requests.post(url, json=payload, timeout=30)
+    except requests.RequestException as exc:
+        return {"error": f"Request failed: {exc}"}
+    try:
+        body = resp.json()
+    except ValueError:
+        body = resp.text
+    return {"status": resp.status_code, "body": body}
+
+
+def call_rag_semantic_api(
+    base_url: str,
+    embedding: List[float],
+    table: str,
+    embeddings_table: str,
+    columns: Optional[List[str]],
+    limit: int,
+) -> Dict[str, Any]:
+    payload: Dict[str, Any] = {
+        "embedding": embedding,
+        "table": table,
+        "embeddings_table": embeddings_table,
+        "limit": limit,
+    }
+    if columns:
+        payload["columns"] = columns
+    url = base_url.rstrip("/") + "/rag/semantic"
     try:
         resp = requests.post(url, json=payload, timeout=30)
     except requests.RequestException as exc:
@@ -289,7 +310,9 @@ def run_openai_loop(client: OpenAI, base_url: str, model: str) -> None:
     table = os.environ.get("RAG_TABLE", "fund_data")
     columns = parse_env_list(os.environ.get("RAG_COLUMNS"))
     text_columns = parse_env_list(os.environ.get("RAG_TEXT_COLUMNS"))
+    embeddings_table = os.environ.get("RAG_EMBEDDINGS_TABLE", "fund_embeddings")
     limit = int(os.environ.get("RAG_LIMIT", "20"))
+    rag_mode = os.environ.get("RAG_MODE", "fts").lower().strip()
 
     messages = [{"role": "system", "content": system_prompt}]
     print("Type a question, or Ctrl-D to exit.")
@@ -302,7 +325,13 @@ def run_openai_loop(client: OpenAI, base_url: str, model: str) -> None:
         if not user_input:
             continue
 
-        rag_result = call_rag_api(base_url, user_input, table, columns, text_columns, limit)
+        if rag_mode == "semantic":
+            embedding = get_embedding(user_input)
+            rag_result = call_rag_semantic_api(
+                base_url, embedding, table, embeddings_table, columns, limit
+            )
+        else:
+            rag_result = call_rag_api(base_url, user_input, table, columns, text_columns, limit)
         if rag_result.get("status") == 200:
             rows = rag_result.get("body", {}).get("rows", [])
             context = format_context(rows)
@@ -364,7 +393,9 @@ def run_anthropic_loop(base_url: str, model: str) -> None:
     table = os.environ.get("RAG_TABLE", "fund_data")
     columns = parse_env_list(os.environ.get("RAG_COLUMNS"))
     text_columns = parse_env_list(os.environ.get("RAG_TEXT_COLUMNS"))
+    embeddings_table = os.environ.get("RAG_EMBEDDINGS_TABLE", "fund_embeddings")
     limit = int(os.environ.get("RAG_LIMIT", "20"))
+    rag_mode = os.environ.get("RAG_MODE", "fts").lower().strip()
 
     messages: List[Dict[str, Any]] = []
     print("Type a question, or Ctrl-D to exit.")
@@ -377,7 +408,13 @@ def run_anthropic_loop(base_url: str, model: str) -> None:
         if not user_input:
             continue
 
-        rag_result = call_rag_api(base_url, user_input, table, columns, text_columns, limit)
+        if rag_mode == "semantic":
+            embedding = get_embedding(user_input)
+            rag_result = call_rag_semantic_api(
+                base_url, embedding, table, embeddings_table, columns, limit
+            )
+        else:
+            rag_result = call_rag_api(base_url, user_input, table, columns, text_columns, limit)
         if rag_result.get("status") == 200:
             rows = rag_result.get("body", {}).get("rows", [])
             context = format_context(rows)

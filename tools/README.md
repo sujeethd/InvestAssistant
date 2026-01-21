@@ -37,3 +37,13 @@ Manually verify extracted csv data before loading into db
 ```bash
 python csv_to_postgres.py /path/to/yoour/csv
 ```
+
+## Embeddings (semantic RAG)
+
+Build embeddings for `fund_data` (requires pgvector extension in Postgres):
+```bash
+export EMBEDDING_PROVIDER=ollama
+export OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+export EMBEDDING_DIM=768
+python build_embeddings.py
+```

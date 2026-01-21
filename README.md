@@ -71,6 +71,24 @@ RAG_COLUMNS=fund_name,1_yr_anlsd_percent,5_yr_anlsd_percent,expense_ratio
 RAG_TEXT_COLUMNS=fund_name,morningstart_risk
 ```
 
+### Semantic RAG (embeddings)
+
+To enable embedding-based retrieval:
+
+1) Build embeddings:
+```bash
+python tools/build_embeddings.py
+```
+
+2) Set env vars:
+```
+RAG_MODE=semantic
+RAG_EMBEDDINGS_TABLE=fund_embeddings
+EMBEDDING_PROVIDER=ollama
+OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+EMBEDDING_DIM=768
+```
+
 ## Hybrid mode
 
 Hybrid mode combines RAG context with tool calling for precise ranking/filtering:

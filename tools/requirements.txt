@@ -3,3 +3,5 @@ numpy<2
 opencv-python
 pdfplumber
 psycopg2-binary
+openai
+requests

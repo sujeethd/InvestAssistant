@@ -153,6 +153,14 @@ class RagSearchRequest(BaseModel):
     limit: int = 50
 
 
+class RagSemanticRequest(BaseModel):
+    embedding: List[float]
+    table: str = "fund_data"
+    embeddings_table: str = "fund_embeddings"
+    columns: Optional[List[str]] = None
+    limit: int = 50
+
+
 app = FastAPI(title="Investment Portfolio API", version="0.1.0")
 
 
@@ -346,4 +354,37 @@ def rag_search(req: RagSearchRequest):
             cur.execute(query, params)
             rows = cur.fetchall()
         result = [dict(zip(cols + ["rank"], r)) for r in rows]
+        return {"rows": result, "count": len(result)}
+
+
+@app.post("/rag/semantic")
+def rag_semantic(req: RagSemanticRequest):
+    if not req.embedding:
+        raise HTTPException(status_code=400, detail="embedding is required")
+    with get_db_connection() as conn:
+        columns = get_table_columns(conn, req.table)
+        cols = req.columns or columns
+        for c in cols:
+            if c not in columns:
+                raise HTTPException(status_code=400, detail=f"Unknown column: {c}")
+
+        embedding_literal = "[" + ",".join(str(x) for x in req.embedding) + "]"
+        query = sql.SQL(
+            """
+            SELECT {cols}, e.embedding <-> %s::vector AS distance
+            FROM {embeddings} e
+            JOIN {table} t ON t.id = e.fund_id
+            ORDER BY e.embedding <-> %s::vector
+            LIMIT %s
+            """
+        ).format(
+            cols=sql.SQL(", ").join(map(sql.Identifier, cols)),
+            embeddings=sql.Identifier(req.embeddings_table),
+            table=sql.Identifier(req.table),
+        )
+        params = [embedding_literal, embedding_literal, req.limit]
+        with conn.cursor() as cur:
+            cur.execute(query, params)
+            rows = cur.fetchall()
+        result = [dict(zip(cols + ["distance"], r)) for r in rows]
         return {"rows": result, "count": len(result)}

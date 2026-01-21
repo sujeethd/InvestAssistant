@@ -6,4 +6,6 @@ agent/.venv
 agent/__pycache__/
 aichat/.env
 aichat/.venv
+aichat/.env*
+aichat/__pycache__/
 

@@ -44,6 +44,12 @@ RAG config (optional):
 - `RAG_LIMIT` (default `20`)
 - `RAG_COLUMNS` (comma-separated list of columns to include in context)
 - `RAG_TEXT_COLUMNS` (comma-separated list of columns used for retrieval)
+- `RAG_MODE` (`fts` or `semantic`, default `fts`)
+- `RAG_EMBEDDINGS_TABLE` (default `fund_embeddings`)
+- `EMBEDDING_PROVIDER` (`openai` or `ollama`, defaults to `PROVIDER`)
+- `OPENAI_EMBEDDING_MODEL` (default `text-embedding-3-small`)
+- `OLLAMA_EMBEDDING_MODEL` (default `nomic-embed-text`)
+- `OLLAMA_EMBEDDINGS_URL` (default `http://localhost:11434/api/embeddings`)
 
 ## Hybrid mode
 
