@@ -8,4 +8,5 @@ aichat/.env
 aichat/.venv
 aichat/.env*
 aichat/__pycache__/
-
+finetune/.env
+finetune/.venv
