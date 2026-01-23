@@ -1,0 +1,36 @@
+databases:
+  - name: fund-db
+    databaseName: morningstar_db
+    user: sujeeth
+
+services:
+  - type: web
+    name: fund-agent
+    env: python
+    buildCommand: pip install -r agent/requirements.txt
+    startCommand: uvicorn agent/server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DB_NAME
+        fromDatabase:
+          name: fund-db
+          property: databaseName
+      - key: DB_USER
+        fromDatabase:
+          name: fund-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: fund-db
+          property: password
+      - key: DB_HOST
+        fromDatabase:
+          name: fund-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: fund-db
+          property: port
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fund-db
+          property: connectionString
