@@ -2,19 +2,33 @@ openapi: 3.1.0
 info:
   title: Investment Portfolio API
   version: 0.1.0
+  description: API for searching investment funds and computing summary statistics.
 servers:
   - url: https://YOUR_DOMAIN_HERE
+security:
+  - bearerAuth: []
 paths:
   /funds/search:
     post:
       operationId: searchFunds
       summary: Search funds with filters
+      description: |
+        Returns funds matching filters such as asset class, region, expense ratio range, etc.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/FundSearchRequest"
+            examples:
+              default:
+                value:
+                  query: "s&p 500"
+                  filters:
+                    assetClass: "Equity"
+                    region: "US"
+                    expenseRatioMax: 0.10
+                  limit: 20
       responses:
         "200":
           description: Matching funds
@@ -22,16 +36,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FundListResponse"
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
   /funds/summary:
     post:
       operationId: summarizeFunds
       summary: Summary statistics for selected columns
+      description: |
+        Computes summary stats (min/max/avg/median/count) for specific fields across a fund list.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/FundSummaryRequest"
+            examples:
+              default:
+                value:
+                  fundIds: ["VFIAX", "FXAIX", "SPY"]
+                  columns: ["expenseRatio", "ytdReturn", "aum"]
       responses:
         "200":
           description: Summary stats
@@ -39,6 +66,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/FundSummaryResponse"
+        "400":
+          description: Invalid request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Server error
   /portfolio/lowest-expense:
     post:
       operationId: lowestExpensePortfolio
@@ -125,40 +158,78 @@ paths:
               schema:
                 $ref: "#/components/schemas/RagSemanticResponse"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
   schemas:
     FundSearchRequest:
       type: object
+      additionalProperties: false
       properties:
-        table:
+        query:
           type: string
-          default: fund_data
-        columns:
-          type: array
-          items: { type: string }
+          description: Free-text search string (e.g., name, ticker, benchmark).
         filters:
-          type: array
-          items:
-            $ref: "#/components/schemas/Filter"
+          type: object
+          description: Structured filters for fund search.
+          additionalProperties: false
+          properties:
+            assetClass:
+              type: string
+              description: Equity, Fixed Income, Multi-Asset, Alternatives, Cash
+            region:
+              type: string
+              description: US, International, Global, Emerging Markets, etc.
+            expenseRatioMin:
+              type: number
+            expenseRatioMax:
+              type: number
+            aumMin:
+              type: number
+              description: Minimum AUM in USD
         limit:
           type: integer
-          default: 50
-        order_by:
+          minimum: 1
+          maximum: 200
+          default: 25
+      required: [query]
+    Fund:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
           type: string
-      required: [filters]
+          description: Fund ID, ticker, or unique identifier.
+        name:
+          type: string
+        assetClass:
+          type: string
+        region:
+          type: string
+        expenseRatio:
+          type: number
+        aum:
+          type: number
+          description: Assets under management in USD
+        ytdReturn:
+          type: number
+          description: Year-to-date return (decimal or % depending on your standard)
+      required: [id, name]
     FundSummaryRequest:
       type: object
+      additionalProperties: false
       properties:
-        table:
-          type: string
-          default: fund_data
+        fundIds:
+          type: array
+          items:
+            type: string
+          minItems: 1
         columns:
           type: array
           items: { type: string }
-        filters:
-          type: array
-          items:
-            $ref: "#/components/schemas/Filter"
-      required: [columns]
+          minItems: 1
+      required: [fundIds, columns]
     LowestExpenseRequest:
       type: object
       properties:
@@ -280,15 +351,41 @@ components:
           type: integer
     FundListResponse:
       type: object
+      additionalProperties: false
       properties:
-        rows:
+        results:
           type: array
-          items: { type: object }
+          items:
+            $ref: "#/components/schemas/Fund"
+        total:
+          type: integer
+      required: [results, total]
+    FundSummaryStat:
+      type: object
+      additionalProperties: false
+      properties:
+        column:
+          type: string
+        count:
+          type: integer
+        min:
+          type: number
+        max:
+          type: number
+        mean:
+          type: number
+        median:
+          type: number
+      required: [column, count]
     FundSummaryResponse:
       type: object
+      additionalProperties: false
       properties:
-        summary:
-          type: object
+        stats:
+          type: array
+          items:
+            $ref: "#/components/schemas/FundSummaryStat"
+      required: [stats]
     RagSearchResponse:
       type: object
       properties:
