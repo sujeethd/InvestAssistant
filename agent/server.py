@@ -164,6 +164,11 @@ class RagSemanticRequest(BaseModel):
 app = FastAPI(title="Investment Portfolio API", version="0.1.0")
 
 
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
+
+
 @app.on_event("startup")
 def startup():
     env_path = os.path.join(os.getcwd(), ".env")
