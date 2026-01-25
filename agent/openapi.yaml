@@ -1,19 +1,46 @@
 openapi: 3.1.0
 info:
   title: Investment Portfolio API
-  version: 0.1.0
-  description: API for searching investment funds and computing summary statistics.
+  version: 0.1.1
+  description: API for searching funds, computing summary stats, portfolio ranking, and RAG retrieval.
+
 servers:
-  - url: https://YOUR_DOMAIN_HERE
-security:
-  - bearerAuth: []
+  - url: https://investassistant.onrender.com
+
+tags:
+  - name: Health
+    description: Health checks
+  - name: Funds
+    description: Fund search and analytics
+  - name: Portfolio
+    description: Portfolio construction and optimization
+  - name: RAG
+    description: Retrieval endpoints for RAG workflows
+
 paths:
+  /healthz:
+    get:
+      tags: [Health]
+      operationId: healthz
+      summary: Health check
+      description: Returns service status.
+      x-openai-isConsequential: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
   /funds/search:
     post:
+      tags: [Funds]
       operationId: searchFunds
-      summary: Search funds with filters
+      summary: Search funds (table query)
       description: |
-        Returns funds matching filters such as asset class, region, expense ratio range, etc.
+        Query a table (typically fund_data) with optional filters, selected columns, ordering, and limit. filters is a list of {column, op, value}. Returns {"rows":[...]}.
+      x-openai-isConsequential: false
       requestBody:
         required: true
         content:
@@ -21,33 +48,51 @@ paths:
             schema:
               $ref: "#/components/schemas/FundSearchRequest"
             examples:
-              default:
+              minimal_working:
                 value:
-                  query: "s&p 500"
+                  table: fund_data
+                  query: "S&P"
+                  limit: 5
+              with_filters_and_order:
+                value:
+                  table: fund_data
+                  columns: ["id", "fund_name", "expense_ratio", "ytd_return_percentage"]
                   filters:
-                    assetClass: "Equity"
-                    region: "US"
-                    expenseRatioMax: 0.10
-                  limit: 20
+                    - column: expense_ratio
+                      op: "<="
+                      value: 0.15
+                    - column: ytd_return_percentage
+                      op: ">="
+                      value: 0
+                  limit: 10
+                  order_by: "-ytd_return_percentage"
       responses:
         "200":
-          description: Matching funds
+          description: Rows matching query
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FundListResponse"
+                $ref: "#/components/schemas/RowsOnlyResponse"
         "400":
           description: Invalid request
-        "401":
-          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastApiError"
         "500":
           description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /funds/summary:
     post:
+      tags: [Funds]
       operationId: summarizeFunds
-      summary: Summary statistics for selected columns
-      description: |
-        Computes summary stats (min/max/avg/median/count) for specific fields across a fund list.
+      summary: Summary statistics (min/max/avg) for selected columns
+      description: Computes MIN/MAX/AVG for requested columns, with optional filters.
+      x-openai-isConsequential: false
       requestBody:
         required: true
         content:
@@ -55,10 +100,14 @@ paths:
             schema:
               $ref: "#/components/schemas/FundSummaryRequest"
             examples:
-              default:
+              example:
                 value:
-                  fundIds: ["VFIAX", "FXAIX", "SPY"]
-                  columns: ["expenseRatio", "ytdReturn", "aum"]
+                  table: fund_data
+                  columns: ["expense_ratio", "ytd_return_percentage", "3_year_volatility"]
+                  filters:
+                    - column: expense_ratio
+                      op: "<="
+                      value: 0.15
       responses:
         "200":
           description: Summary stats
@@ -68,170 +117,324 @@ paths:
                 $ref: "#/components/schemas/FundSummaryResponse"
         "400":
           description: Invalid request
-        "401":
-          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastApiError"
         "500":
           description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /portfolio/lowest-expense:
     post:
+      tags: [Portfolio]
       operationId: lowestExpensePortfolio
-      summary: Build a portfolio minimizing expense
+      summary: Return N rows with lowest expense column
+      description: Returns lowest values for expense_column with optional filters.
+      x-openai-isConsequential: false
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/LowestExpenseRequest"
+            examples:
+              example:
+                value:
+                  table: fund_data
+                  expense_column: expense_ratio
+                  count: 10
+                  filters:
+                    - column: ytd_return_percentage
+                      op: ">="
+                      value: 0
       responses:
         "200":
-          description: Portfolio results
+          description: Portfolio rows
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PortfolioResponse"
+                $ref: "#/components/schemas/RowsWithCountResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastApiError"
+        "500":
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /portfolio/best-return:
     post:
+      tags: [Portfolio]
       operationId: bestReturnPortfolio
-      summary: Build a portfolio maximizing return
+      summary: Return N rows with best return column
+      description: Returns highest values for return_column with optional filters.
+      x-openai-isConsequential: false
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/BestReturnRequest"
+            examples:
+              example:
+                value:
+                  table: fund_data
+                  return_column: ytd_return_percentage
+                  count: 10
+                  filters:
+                    - column: expense_ratio
+                      op: "<="
+                      value: 0.2
       responses:
         "200":
-          description: Portfolio results
+          description: Portfolio rows
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PortfolioResponse"
+                $ref: "#/components/schemas/RowsWithCountResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastApiError"
+        "500":
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /portfolio/optimize:
     post:
+      tags: [Portfolio]
       operationId: optimizePortfolio
-      summary: Optimize with weighted objective and constraints
+      summary: Optimize (rank) using weighted objective
+      description: Ranks rows using objective (maximize/minimize) and optional weights and filters.
+      x-openai-isConsequential: false
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/OptimizeRequest"
+            examples:
+              example:
+                value:
+                  table: fund_data
+                  count: 10
+                  objective:
+                    maximize: ["ytd_return_percentage"]
+                    minimize: ["expense_ratio", "3_year_volatility"]
+                  weights:
+                    ytd_return_percentage: 0.7
+                    expense_ratio: 0.2
+                    3_year_volatility: 0.1
+                  filters:
+                    - column: expense_ratio
+                      op: "<="
+                      value: 0.25
       responses:
         "200":
-          description: Portfolio results
+          description: Portfolio rows with score
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PortfolioResponse"
+                $ref: "#/components/schemas/RowsWithCountResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastApiError"
+        "500":
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /rag/search:
     post:
+      tags: [RAG]
       operationId: ragSearch
-      summary: Retrieve relevant rows for RAG
+      summary: Keyword RAG search
+      description: Keyword retrieval over text_columns; returns ranked rows.
+      x-openai-isConsequential: false
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/RagSearchRequest"
+            examples:
+              example:
+                value:
+                  query: "low expense ratio US equity"
+                  table: fund_data
+                  columns: ["id", "fund_name", "expense_ratio"]
+                  text_columns: ["fund_name", "morningstart_risk"]
+                  limit: 25
       responses:
         "200":
-          description: RAG results
+          description: RAG keyword results
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RagSearchResponse"
+                $ref: "#/components/schemas/RagRowsResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastApiError"
+        "500":
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
   /rag/semantic:
     post:
+      tags: [RAG]
       operationId: ragSemanticSearch
-      summary: Retrieve relevant rows using vector similarity
+      summary: Semantic RAG search
+      description: Vector similarity retrieval using embedding and embeddings_table.
+      x-openai-isConsequential: false
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/RagSemanticRequest"
+            examples:
+              example:
+                value:
+                  embedding: [0.01, -0.02, 0.03]
+                  table: fund_data
+                  embeddings_table: fund_embeddings
+                  columns: ["id", "fund_name", "expense_ratio"]
+                  limit: 10
       responses:
         "200":
           description: RAG semantic results
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RagSemanticResponse"
+                $ref: "#/components/schemas/RagRowsSemanticResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FastApiError"
+        "500":
+          description: Server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
   schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+      required: [status]
+
+    Filter:
+      type: object
+      additionalProperties: false
+      properties:
+        column:
+          type: string
+          description: Column name in the selected table
+        op:
+          type: string
+          enum: ["=", "!=", ">", ">=", "<", "<=", "in", "like"]
+        value:
+          description: Value for the filter; for op=in must be an array.
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+      required: [column, op, value]
+
     FundSearchRequest:
       type: object
       additionalProperties: false
       properties:
-        query:
+        table:
           type: string
-          description: Free-text search string (e.g., name, ticker, benchmark).
+          default: fund_data
+        columns:
+          description: Selected columns; omit to return all. Use ["*"] for all.
+          anyOf:
+            - type: "null"
+            - type: array
+              items: { type: string }
         filters:
-          type: object
-          description: Structured filters for fund search.
-          additionalProperties: false
-          properties:
-            assetClass:
-              type: string
-              description: Equity, Fixed Income, Multi-Asset, Alternatives, Cash
-            region:
-              type: string
-              description: US, International, Global, Emerging Markets, etc.
-            expenseRatioMin:
-              type: number
-            expenseRatioMax:
-              type: number
-            aumMin:
-              type: number
-              description: Minimum AUM in USD
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+          default: []
         limit:
           type: integer
           minimum: 1
-          maximum: 200
-          default: 25
-      required: [query]
-    Fund:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-          description: Fund ID, ticker, or unique identifier.
-        name:
-          type: string
-        assetClass:
-          type: string
-        region:
-          type: string
-        expenseRatio:
-          type: number
-        aum:
-          type: number
-          description: Assets under management in USD
-        ytdReturn:
-          type: number
-          description: Year-to-date return (decimal or % depending on your standard)
-      required: [id, name]
+          maximum: 1000
+          default: 50
+        order_by:
+          description: Column name to order by; prefix with '-' for DESC.
+          anyOf:
+            - type: "null"
+            - type: string
+        query:
+          description: Optional search string (some deployments may ignore this).
+          anyOf:
+            - type: "null"
+            - type: string
+      required: [table]
+
     FundSummaryRequest:
       type: object
       additionalProperties: false
       properties:
-        fundIds:
-          type: array
-          items:
-            type: string
-          minItems: 1
+        table:
+          type: string
+          default: fund_data
         columns:
           type: array
-          items: { type: string }
           minItems: 1
-      required: [fundIds, columns]
+          items: { type: string }
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+          default: []
+      required: [table, columns]
+
     LowestExpenseRequest:
       type: object
+      additionalProperties: false
       properties:
         table:
           type: string
@@ -240,14 +443,19 @@ components:
           type: string
         count:
           type: integer
+          minimum: 1
+          maximum: 1000
           default: 10
         filters:
           type: array
           items:
             $ref: "#/components/schemas/Filter"
-      required: [expense_column]
+          default: []
+      required: [table, expense_column]
+
     BestReturnRequest:
       type: object
+      additionalProperties: false
       properties:
         table:
           type: string
@@ -256,33 +464,59 @@ components:
           type: string
         count:
           type: integer
+          minimum: 1
+          maximum: 1000
           default: 10
         filters:
           type: array
           items:
             $ref: "#/components/schemas/Filter"
-      required: [return_column]
+          default: []
+      required: [table, return_column]
+
+    Objective:
+      type: object
+      additionalProperties: false
+      properties:
+        maximize:
+          type: array
+          items: { type: string }
+          default: []
+        minimize:
+          type: array
+          items: { type: string }
+          default: []
+      required: [maximize, minimize]
+
     OptimizeRequest:
       type: object
+      additionalProperties: false
       properties:
         table:
           type: string
           default: fund_data
         count:
           type: integer
+          minimum: 1
+          maximum: 1000
           default: 10
         objective:
           $ref: "#/components/schemas/Objective"
         weights:
           type: object
-          additionalProperties: { type: number }
+          additionalProperties:
+            type: number
+          default: {}
         filters:
           type: array
           items:
             $ref: "#/components/schemas/Filter"
-      required: [objective]
+          default: []
+      required: [table, count, objective]
+
     RagSearchRequest:
       type: object
+      additionalProperties: false
       properties:
         query:
           type: string
@@ -290,20 +524,29 @@ components:
           type: string
           default: fund_data
         columns:
-          type: array
-          items: { type: string }
+          anyOf:
+            - type: "null"
+            - type: array
+              items: { type: string }
         text_columns:
-          type: array
-          items: { type: string }
+          anyOf:
+            - type: "null"
+            - type: array
+              items: { type: string }
         limit:
           type: integer
+          minimum: 1
+          maximum: 1000
           default: 50
       required: [query]
+
     RagSemanticRequest:
       type: object
+      additionalProperties: false
       properties:
         embedding:
           type: array
+          minItems: 1
           items: { type: number }
         table:
           type: string
@@ -312,99 +555,94 @@ components:
           type: string
           default: fund_embeddings
         columns:
-          type: array
-          items: { type: string }
-        limit:
-          type: integer
-          default: 50
-      required: [embedding]
-    Objective:
-      type: object
-      properties:
-        maximize:
-          type: array
-          items: { type: string }
-        minimize:
-          type: array
-          items: { type: string }
-    Filter:
-      type: object
-      properties:
-        column: { type: string }
-        op:
-          type: string
-          enum: [=, !=, >, >=, <, <=, in, like]
-        value:
-          oneOf:
-            - type: string
-            - type: number
+          anyOf:
+            - type: "null"
             - type: array
               items: { type: string }
-      required: [column, op, value]
-    PortfolioResponse:
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 50
+      required: [embedding]
+
+    AnyRow:
       type: object
+      properties: {}
+      additionalProperties: true
+      description: Arbitrary row object; fields depend on requested columns.
+
+    RowsOnlyResponse:
+      type: object
+      additionalProperties: false
       properties:
         rows:
           type: array
-          items: { type: object }
-        count:
-          type: integer
-    FundListResponse:
+          items:
+            $ref: "#/components/schemas/AnyRow"
+      required: [rows]
+
+    RowsWithCountResponse:
       type: object
       additionalProperties: false
       properties:
-        results:
+        rows:
           type: array
           items:
-            $ref: "#/components/schemas/Fund"
-        total:
+            $ref: "#/components/schemas/AnyRow"
+        count:
           type: integer
-      required: [results, total]
-    FundSummaryStat:
+      required: [rows, count]
+
+    FundSummaryMetric:
       type: object
       additionalProperties: false
       properties:
-        column:
-          type: string
-        count:
-          type: integer
         min:
-          type: number
+          type: ["number", "null"]
         max:
-          type: number
-        mean:
-          type: number
-        median:
-          type: number
-      required: [column, count]
+          type: ["number", "null"]
+        avg:
+          type: ["number", "null"]
+      required: [min, max, avg]
+
     FundSummaryResponse:
       type: object
       additionalProperties: false
       properties:
-        stats:
+        summary:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/FundSummaryMetric"
+      required: [summary]
+
+    RagRowsResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        rows:
           type: array
           items:
-            $ref: "#/components/schemas/FundSummaryStat"
-      required: [stats]
-    RagSearchResponse:
+            $ref: "#/components/schemas/AnyRow"
+        count:
+          type: integer
+      required: [rows, count]
+
+    RagRowsSemanticResponse:
       type: object
+      additionalProperties: false
       properties:
         rows:
           type: array
-          items: { type: object }
+          items:
+            $ref: "#/components/schemas/AnyRow"
         count:
           type: integer
-    RagSemanticResponse:
+      required: [rows, count]
+
+    FastApiError:
       type: object
+      additionalProperties: true
       properties:
-        rows:
-          type: array
-          items: { type: object }
-        count:
-          type: integer
-          additionalProperties:
-            type: object
-            properties:
-              min: { type: number }
-              max: { type: number }
-              avg: { type: number }
+        detail:
+          additionalProperties: true

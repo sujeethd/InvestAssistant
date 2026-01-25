@@ -3,7 +3,8 @@ from typing import Any, Dict, List, Optional
 
 import psycopg2
 from psycopg2 import sql
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 
 
@@ -161,10 +162,25 @@ class RagSemanticRequest(BaseModel):
     limit: int = 50
 
 
-app = FastAPI(title="Investment Portfolio API", version="0.1.0")
+bearer_scheme = HTTPBearer()
 
 
-@app.get("/healthz")
+def require_bearer_token(
+    creds: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+) -> None:
+    expected = os.environ.get("API_BEARER_TOKEN")
+    if not expected or creds.credentials != expected:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+app = FastAPI(
+    title="Investment Portfolio API",
+    version="0.1.0",
+    dependencies=[Depends(require_bearer_token)],
+)
+
+
+@app.get("/healthz", dependencies=[])
 def healthz():
     return {"status": "ok"}
 
