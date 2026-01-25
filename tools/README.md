@@ -47,3 +47,12 @@ export OLLAMA_EMBEDDING_MODEL=nomic-embed-text
 export EMBEDDING_DIM=768
 python build_embeddings.py
 ```
+
+# DB commands
+```bash
+pg_dump -Fc -f data/morningstar_db.dump \
+  -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME"
+
+pg_restore --no-owner --clean --if-exists \
+  -d "$RENDER_DATABASE_URL" data/morningstar_db.dump
+```
