@@ -30,6 +30,21 @@ Then in another shell:
 python aichat/chat_local.py
 ```
 
+## Chat API service
+
+You can also run a public `/chat` service (for the UI) that forwards RAG/tool
+calls to the `agent` service:
+
+```bash
+uvicorn aichat.server:app --host 0.0.0.0 --port 8001
+```
+
+Required env vars for the service:
+- `AGENT_API_URL` (Render URL for the agent, e.g. `https://your-agent.onrender.com`)
+- `API_BEARER_TOKEN` (must match the agent's token)
+
+The service uses the same provider/RAG config listed below.
+
 ## Evaluation harness
 
 Run the golden questions and emit a JSON report:
