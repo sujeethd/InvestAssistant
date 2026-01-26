@@ -10,3 +10,6 @@ aichat/.env*
 aichat/__pycache__/
 finetune/.env
 finetune/.venv
+aichatui/node_modules
+aichatui/.env
+aichatui/.env*
