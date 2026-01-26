@@ -490,6 +490,10 @@ textarea {
 
   .composer {
     grid-template-columns: 1fr;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg);
+    padding-bottom: 12px;
   }
 
   .composer textarea {
