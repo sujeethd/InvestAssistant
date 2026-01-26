@@ -32,7 +32,7 @@ export default function App() {
     {
       role: "assistant",
       content:
-        "This investment assistant uses AI and built-in knowledge to help draft portfolio ideas. This is not investment advice; it is only a guide. Please consult a finance professional, such as a Certified Financial Planner, for advice.",
+        "This investment assistant uses AI and built-in knowledge to help draft portfolio ideas. This is not investment advice; it is only a guide. Please consult a finance professional, such as a Certified Financial Planner, for advice. [Read more about the motivation and implementation details.](https://claude.ai/public/artifacts/00b6f21a-baae-4018-ae1e-ea7cb8ff36f0)",
     },
   ]);
   const [isSending, setIsSending] = useState(false);
